@@ -1,0 +1,141 @@
+---
+description: Enforce pnpm usage and prevent other package managers to maintain consistency
+globs: package.json, .npmrc, **/*.md, **/*.json, **/*.js, **/*.ts, **/*.tsx
+alwaysApply: true
+---
+
+# **Package Manager Enforcement: pnpm Only**
+
+This project uses **pnpm exclusively** for package management to ensure consistent dependency resolution, faster installations, and better disk space efficiency.
+
+## **✅ DO: Use pnpm Commands**
+
+```bash
+# ✅ Installation
+pnpm install
+pnpm add <package>
+pnpm add -D <package>
+pnpm add -g <package>
+
+# ✅ Running scripts
+pnpm dev
+pnpm build
+pnpm test
+pnpm lint
+
+# ✅ Advanced pnpm features
+pnpm dlx <package>  # Execute packages without installing
+pnpm why <package>  # Understand why a package is installed
+pnpm outdated       # Check for outdated packages
+```
+
+## **❌ DON'T: Use Other Package Managers**
+
+```bash
+# ❌ NEVER use npm
+npm install
+npm run dev
+npm add <package>
+
+# ❌ NEVER use yarn
+yarn install
+yarn add <package>
+yarn dev
+
+# ❌ NEVER use bun
+bun install
+bun add <package>
+bun dev
+```
+
+## **🔒 Required Project Configuration**
+
+### **.npmrc Configuration**
+```ini
+# Required for Next.js compatibility
+node-linker=hoisted
+shamefully-hoist=true
+
+# Prevent npm/yarn usage
+engine-strict=true
+```
+
+### **package.json engines**
+```json
+{
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8.0.0",
+    "npm": "please-use-pnpm",
+    "yarn": "please-use-pnpm"
+  },
+  "packageManager": "pnpm@8.15.1"
+}
+```
+
+## **🚫 Lock File Management**
+
+- **Keep**: `pnpm-lock.yaml` ✅
+- **Delete**: `package-lock.json` ❌
+- **Delete**: `yarn.lock` ❌
+- **Delete**: `bun.lockb` ❌
+
+Only commit `pnpm-lock.yaml` to version control.
+
+## **📝 Documentation Standards**
+
+When writing README or documentation:
+
+```markdown
+# ✅ Correct installation instructions
+npm install -g pnpm  # Install pnpm globally first
+pnpm install         # Then install project dependencies
+pnpm dev            # Start development server
+
+# ❌ Don't include npm/yarn alternatives
+```
+
+## **🔧 IDE Integration**
+
+- Configure terminal to use `pnpm` by default
+- Set up run configurations to use `pnpm` commands
+- Update any workspace settings to reference pnpm
+
+## **⚠️ Common Mistakes to Avoid**
+
+1. **Mixed Lock Files**: Having both `pnpm-lock.yaml` and `package-lock.json`
+2. **Wrong Commands**: Using `npm run` instead of `pnpm`
+3. **Global Installs**: Using `npm install -g` instead of `pnpm add -g`
+4. **Caching Issues**: Not clearing npm cache when switching to pnpm
+
+## **🏗️ Project Benefits**
+
+- **2-3x faster** installations compared to npm
+- **40% less disk space** usage
+- **Strict dependency isolation** prevents phantom dependencies
+- **Better monorepo support** for future scaling
+- **Consistent environments** across all team members
+
+## **🆘 Troubleshooting**
+
+If you accidentally use npm/yarn:
+
+```bash
+# Clean up mixed package managers
+rm -rf node_modules
+rm package-lock.json  # or yarn.lock
+pnpm install
+```
+
+## **📋 Enforcement Checklist**
+
+- [ ] `.npmrc` configured with engine-strict=true
+- [ ] `package.json` engines field configured
+- [ ] Only `pnpm-lock.yaml` in version control
+- [ ] All documentation uses pnpm commands
+- [ ] CI/CD configured to use pnpm
+- [ ] Team educated on pnpm usage
+
+---
+
+**Remember**: Consistency in package managers prevents dependency resolution issues, ensures reproducible builds, and maintains team productivity.

@@ -1,0 +1,572 @@
+{
+  "master": {
+    "tasks": [
+      {
+        "id": 1,
+        "title": "Project Setup with Next.js 14, TypeScript, and shadcn/ui",
+        "description": "Initialize the project repository with Next.js 14, TypeScript, and configure shadcn/ui components with Tailwind CSS for styling using pnpm as the package manager for improved performance and dependency management.",
+        "status": "pending",
+        "dependencies": [],
+        "priority": "high",
+        "details": "1. Install pnpm globally: `npm install -g pnpm`\n2. Create a new Next.js 14 project with TypeScript support using `pnpm create next-app@latest` with the App Router\n3. Create .npmrc file with proper Next.js configuration and package manager enforcement:\n   ```\n   node-linker=hoisted\n   shamefully-hoist=true\n   engine-strict=true\n   ```\n4. Configure Tailwind CSS (should be included in the Next.js setup)\n5. Install and configure shadcn/ui using their CLI: `pnpm dlx shadcn-ui@latest init`\n6. Set up ESLint and Prettier for code quality\n7. Configure directory structure following Next.js 14 best practices:\n   - `/app` - App Router pages and layouts\n   - `/components` - Reusable UI components\n   - `/lib` - Utility functions and shared code\n   - `/types` - TypeScript type definitions\n   - `/styles` - Global styles and Tailwind customizations\n   - `/scripts` - Utility scripts including package manager enforcement\n8. Set up Git repository with appropriate .gitignore, including entries to ignore npm and yarn lock files:\n   ```\n   # Package manager locks (except pnpm)\n   package-lock.json\n   yarn.lock\n   ```\n9. Create a basic README.md with project setup instructions including package manager requirements\n10. Install React Query (TanStack Query v5): `pnpm add @tanstack/react-query@latest @tanstack/react-query-devtools@latest`\n11. Configure React Query provider in the app layout\n12. Update all package.json scripts to work with pnpm\n13. Configure CI/CD optimization with pnpm store directory\n14. Set up package.json engines field to enforce pnpm usage:\n   ```json\n   \"engines\": {\n     \"node\": \">=18.0.0\",\n     \"pnpm\": \">=8.0.0\"\n   }\n   ```\n15. Create a package manager enforcement script at scripts/check-package-manager.js",
+        "testStrategy": "1. Verify that the project builds successfully with `pnpm build`\n2. Ensure that the development server runs without errors using `pnpm dev`\n3. Confirm that shadcn/ui components render correctly\n4. Validate TypeScript configuration with `pnpm type-check`\n5. Test React Query provider setup by creating a simple test query\n6. Verify pnpm dependency resolution by checking node_modules structure\n7. Confirm .npmrc configuration is correctly applied\n8. Test package manager enforcement by attempting to use npm or yarn and verifying they are blocked\n9. Verify the check-package-manager.js script correctly identifies and prevents non-pnpm usage",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Research pnpm benefits for Next.js projects",
+            "description": "Document the benefits of using pnpm for Next.js 14 projects with React Query, shadcn/ui, and TypeScript.",
+            "status": "completed",
+            "dependencies": [],
+            "details": "Research findings: pnpm is 2-3x faster than npm, uses 40% less disk space, and provides better dependency isolation for complex projects like this dashboard. Optimal for Next.js 14 projects with React Query, shadcn/ui, and TypeScript in 2025.",
+            "testStrategy": ""
+          },
+          {
+            "id": 2,
+            "title": "Create package manager enforcement script",
+            "description": "Develop a script to enforce pnpm usage and prevent npm/yarn usage across the team.",
+            "status": "pending",
+            "dependencies": [],
+            "details": "1. Create scripts/check-package-manager.js to detect and block non-pnpm usage\n2. Add script to package.json preinstall hook to run automatically\n3. Include clear error messages explaining why pnpm is required\n4. Document the enforcement mechanism in README.md",
+            "testStrategy": "1. Test script with npm install and verify it blocks the operation\n2. Test script with yarn install and verify it blocks the operation\n3. Verify script allows pnpm install to proceed normally"
+          },
+          {
+            "id": 3,
+            "title": "Configure package manager enforcement in project files",
+            "description": "Update project configuration files to enforce pnpm usage across the team.",
+            "status": "pending",
+            "dependencies": [
+              2
+            ],
+            "details": "1. Update .npmrc with engine-strict=true\n2. Configure package.json engines field to specify pnpm version requirements\n3. Update .gitignore to exclude package-lock.json and yarn.lock\n4. Add documentation in README.md about package manager requirements",
+            "testStrategy": "1. Verify .npmrc contains the correct configuration\n2. Confirm package.json engines field is properly configured\n3. Test that .gitignore correctly excludes npm and yarn lock files"
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "title": "API Client Implementation with React Query",
+        "description": "Create a robust API client to interact with the Business-Specific RAG API endpoints using React Query for data fetching, caching, and state management.",
+        "details": "1. Create an API client module in `/lib/api-client.ts`\n2. Implement a base fetch wrapper with error handling and authentication\n3. Define TypeScript interfaces for all API responses in `/types/api.ts`\n4. Create React Query hooks for each API endpoint group:\n   - Health endpoints: `/health`, `/health/database`, `/health/database/metrics`\n   - Document endpoints: `/documents/*`\n   - Collection endpoints: `/collections/*`\n   - Workflow endpoints: `/workflows/*`\n   - RAG configuration endpoints: `/rag/config/*`\n   - Business metrics endpoints: `/business-metrics`\n5. Implement intelligent error handling with retry logic\n6. Set up appropriate caching strategies for different endpoint types\n7. Add request/response interceptors for logging and debugging\n8. Configure React Query default options for the project (staleTime, cacheTime, etc.)\n9. Implement a custom hook for handling API errors consistently across the application",
+        "testStrategy": "1. Create mock API responses for testing\n2. Test each API hook with mock data\n3. Verify error handling by simulating API failures\n4. Test caching behavior by making repeated requests\n5. Validate TypeScript types for API responses\n6. Test retry logic by simulating intermittent failures",
+        "priority": "high",
+        "dependencies": [
+          1
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 3,
+        "title": "Application Layout and Navigation Structure",
+        "description": "Implement the main application layout and navigation structure according to the PRD's navigation requirements using shadcn/ui components.",
+        "details": "1. Create a responsive main layout in `/app/layout.tsx`\n2. Implement the primary navigation sidebar with the following items:\n   - Dashboard Home\n   - Documents\n   - Collections\n   - Workflows\n   - Configurations\n   - Analytics\n   - Settings\n3. Use shadcn/ui's navigation components for consistent styling\n4. Implement responsive design for desktop and tablet devices\n5. Create a header component with user information and global actions\n6. Add breadcrumb navigation for improved UX\n7. Implement page transitions using Next.js App Router features\n8. Create loading states for each main section\n9. Add error boundaries for each main section\n10. Implement a context provider for managing navigation state\n11. Create basic placeholder pages for each main navigation item",
+        "testStrategy": "1. Test responsive behavior across different screen sizes\n2. Verify that navigation links work correctly\n3. Test loading states by simulating slow network\n4. Validate error boundaries by forcing errors\n5. Ensure accessibility compliance using automated tools\n6. Test keyboard navigation throughout the application",
+        "priority": "high",
+        "dependencies": [
+          1
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 4,
+        "title": "Dashboard Home with System Overview",
+        "description": "Create the main dashboard home page with key system metrics, health status, and quick actions for common tasks.",
+        "details": "1. Implement the dashboard home page in `/app/page.tsx`\n2. Create a system health status card component using data from `/health` endpoints\n3. Implement key metrics cards for document processing, collections, and workflows\n4. Add quick action buttons for common tasks (upload document, create collection, etc.)\n5. Create a recent activity feed component\n6. Implement a resource utilization chart using Recharts\n7. Add system alerts and notifications section\n8. Create a responsive grid layout for dashboard components\n9. Implement skeleton loading states for all dashboard components\n10. Add refresh functionality for dashboard data\n11. Create a dashboard context for managing dashboard state\n12. Implement time range selector for metrics (last 24h, 7d, 30d)",
+        "testStrategy": "1. Test data fetching from health endpoints\n2. Verify that metrics update correctly\n3. Test quick action buttons functionality\n4. Validate responsive layout on different screen sizes\n5. Test skeleton loading states\n6. Verify refresh functionality\n7. Test time range selector for metrics",
+        "priority": "high",
+        "dependencies": [
+          2,
+          3
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 5,
+        "title": "Health Monitoring Dashboard",
+        "description": "Implement a comprehensive health monitoring dashboard that aggregates data from all health-related endpoints with interactive charts and anomaly detection.",
+        "details": "1. Create a dedicated health monitoring page in `/app/health/page.tsx`\n2. Implement a unified health status view that aggregates data from `/health`, `/health/database`, and `/health/database/metrics` endpoints\n3. Create interactive system performance charts using Recharts with configurable time ranges\n4. Implement basic anomaly detection logic to highlight unusual patterns\n5. Add resource utilization trends with capacity planning recommendations\n6. Create a health check history timeline\n7. Implement detailed database metrics visualization\n8. Add component-level health status indicators\n9. Create a health status refresh mechanism with configurable intervals\n10. Implement health status notifications using React Toast or similar\n11. Add export functionality for health metrics data",
+        "testStrategy": "1. Test data aggregation from multiple health endpoints\n2. Verify chart rendering with different data sets\n3. Test anomaly detection with simulated abnormal data\n4. Validate time range selection functionality\n5. Test refresh mechanism at different intervals\n6. Verify export functionality for metrics data\n7. Test responsive behavior of charts and metrics",
+        "priority": "high",
+        "dependencies": [
+          2,
+          3
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Unified Health Status View and Data Aggregation",
+            "description": "Develop a comprehensive dashboard view that aggregates health metrics from all system components into a unified interface.",
+            "dependencies": [],
+            "details": "Implement data collection services to fetch metrics from various system endpoints (servers, services, databases). Create a data processing pipeline that normalizes and aggregates metrics into consistent formats. Design a high-level status panel showing overall system health with color-coded indicators (green/yellow/red). Include a service dependency map visualization. Use React for frontend components and Redux for state management. Implement WebSocket connections for real-time data updates. Ensure data refresh rates are configurable (5s, 30s, 1m intervals).",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 2,
+            "title": "Interactive Performance Charts with Time Range Selection",
+            "description": "Create interactive visualization components that display performance metrics with customizable time ranges and granularity.",
+            "dependencies": [
+              1
+            ],
+            "details": "Implement time-series charts using D3.js or Chart.js with zoom/pan capabilities. Create time range selector component with presets (last hour, day, week, month) and custom range picker. Develop data sampling logic to optimize performance for different time ranges (higher resolution for shorter ranges). Implement client-side caching to improve responsiveness. Add tooltips showing detailed metrics on hover. Create comparison views to overlay metrics from different time periods. Support for exporting chart data in CSV format.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 3,
+            "title": "Anomaly Detection Implementation",
+            "description": "Develop and integrate anomaly detection algorithms to automatically identify unusual patterns or deviations in system metrics.",
+            "dependencies": [
+              1,
+              2
+            ],
+            "details": "Implement statistical anomaly detection algorithms (Z-score, DBSCAN, or isolation forests). Create a configuration interface for setting detection thresholds and sensitivity. Develop a backend service for processing historical data to establish baselines. Implement real-time anomaly checking against established baselines. Design visual indicators for anomalies on charts and dashboards. Create an anomaly log/history view with filtering capabilities. Implement notification triggers when anomalies are detected. Use Python with scikit-learn for backend processing and REST APIs for frontend integration.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 4,
+            "title": "Resource Utilization and Database Metrics Visualization",
+            "description": "Create specialized visualization components for system resources (CPU, memory, disk, network) and database performance metrics.",
+            "dependencies": [
+              1,
+              2
+            ],
+            "details": "Develop resource utilization gauges and historical usage charts. Implement database-specific metrics panels (query performance, connection pools, cache hit ratios). Create heat maps for visualizing resource usage patterns over time. Design drill-down capabilities from high-level metrics to detailed component views. Implement threshold indicators for critical resource levels. Create correlation views to identify relationships between different metrics. Use SVG-based visualizations for gauges and specialized charts. Implement data aggregation logic for different time granularities.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 5,
+            "title": "Notification and Export Functionality",
+            "description": "Implement a comprehensive notification system and data export capabilities for the health monitoring dashboard.",
+            "dependencies": [
+              1,
+              3,
+              4
+            ],
+            "details": "Develop alert configuration UI for setting up notification rules based on thresholds or anomalies. Implement multiple notification channels (email, Slack, SMS, webhook). Create a notification history and management interface. Develop scheduled report generation functionality with customizable templates. Implement data export in multiple formats (CSV, JSON, PDF). Create an API endpoint for external systems to query health status. Design mobile-responsive notifications with appropriate urgency levels. Implement notification grouping to prevent alert storms during major incidents. Use a message queue system (RabbitMQ/Kafka) for reliable notification delivery.",
+            "status": "pending",
+            "testStrategy": ""
+          }
+        ]
+      },
+      {
+        "id": 6,
+        "title": "Document Management Interface",
+        "description": "Create a comprehensive document management interface with grid and list views, filtering, search, and document operations.",
+        "details": "1. Implement document management page in `/app/documents/page.tsx`\n2. Create document list and grid view components with toggle functionality\n3. Implement document card component with metadata display\n4. Add advanced filtering by type, status, collection, and processing date\n5. Implement search functionality for documents\n6. Create document detail view in `/app/documents/[id]/page.tsx`\n7. Implement document preview functionality\n8. Add document processing status timeline\n9. Implement bulk operations for document management (move, delete, reprocess)\n10. Create document upload component with drag-and-drop using react-dropzone\n11. Add pagination or infinite scrolling for document lists\n12. Implement optimistic updates for document operations\n13. Add document sorting options\n14. Create document metadata editor",
+        "testStrategy": "1. Test document listing with various filter combinations\n2. Verify search functionality with different queries\n3. Test document preview with different document types\n4. Validate bulk operations functionality\n5. Test document upload with various file types and sizes\n6. Verify pagination/infinite scrolling with large document sets\n7. Test optimistic updates for document operations\n8. Validate responsive behavior of document views",
+        "priority": "high",
+        "dependencies": [
+          2,
+          3
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Document List/Grid Views Implementation",
+            "description": "Create flexible document list and grid views with comprehensive filtering and search capabilities",
+            "dependencies": [],
+            "details": "UI Requirements: Design responsive list and grid layouts with toggle option between views, implement sortable columns, pagination controls, and visual indicators for document types. Data Handling: Fetch document metadata efficiently with pagination support, implement client-side caching, and handle error states gracefully. User Interaction: Enable keyboard navigation, implement quick-action hover menus, and ensure accessibility compliance for all interactive elements.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 2,
+            "title": "Document Detail View and Preview Functionality",
+            "description": "Develop a comprehensive document detail view with preview capabilities for various file types",
+            "dependencies": [
+              1
+            ],
+            "details": "UI Requirements: Create a split-pane interface with document metadata panel and preview area, support light/dark mode for the preview, implement zoom controls and full-screen option. Data Handling: Load document content on-demand with appropriate loading states, implement file type detection for proper rendering, cache previewed documents for performance. User Interaction: Enable document navigation with keyboard shortcuts, implement annotation tools if applicable, provide download and sharing options.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 3,
+            "title": "Document Upload with Drag-and-Drop",
+            "description": "Implement an intuitive document upload system with drag-and-drop functionality and progress tracking",
+            "dependencies": [
+              1
+            ],
+            "details": "UI Requirements: Design a dropzone area with visual feedback, create a multi-file upload queue interface, implement progress bars with cancel options. Data Handling: Set up chunked file uploads for large documents, validate file types and sizes before upload, handle network interruptions gracefully. User Interaction: Provide clear error messages for failed uploads, implement retry functionality, allow users to add metadata during or after upload process.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 4,
+            "title": "Bulk Operations and Optimistic Updates",
+            "description": "Develop functionality for performing operations on multiple documents with optimistic UI updates",
+            "dependencies": [
+              1,
+              2
+            ],
+            "details": "UI Requirements: Create multi-select controls in list/grid views, design a contextual action bar for bulk operations, implement confirmation dialogs for destructive actions. Data Handling: Batch API requests efficiently, implement optimistic updates to reflect changes immediately in UI, provide rollback mechanism for failed operations. User Interaction: Enable shift-select for range selection, provide clear feedback on operation progress and results, ensure keyboard accessibility for all bulk actions.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 5,
+            "title": "Document Metadata Editing",
+            "description": "Create an interface for viewing and editing document metadata with validation and history tracking",
+            "dependencies": [
+              2,
+              4
+            ],
+            "details": "UI Requirements: Design intuitive forms for metadata editing, implement inline editing capabilities, create a revision history view. Data Handling: Validate metadata changes in real-time, implement autosave functionality, maintain edit history with user attribution. User Interaction: Provide contextual help for metadata fields, implement keyboard shortcuts for common editing actions, ensure all forms are fully accessible.",
+            "status": "pending",
+            "testStrategy": ""
+          }
+        ]
+      },
+      {
+        "id": 7,
+        "title": "Collection Management Interface",
+        "description": "Implement a visual collection browser with hierarchical organization, collection management tools, and performance analytics.",
+        "details": "1. Create collection management page in `/app/collections/page.tsx`\n2. Implement visual collection browser with hierarchical organization\n3. Create collection card component with key metrics\n4. Add collection creation and editing functionality\n5. Implement collection detail view in `/app/collections/[name]/page.tsx`\n6. Add collection performance analytics and health scoring\n7. Implement document list within collection view\n8. Create collection settings management\n9. Add collection deletion with safety checks\n10. Implement collection search and filtering\n11. Create collection statistics visualization using Recharts\n12. Add document movement between collections\n13. Implement collection export/import functionality",
+        "testStrategy": "1. Test collection browser with various collection structures\n2. Verify collection creation and editing functionality\n3. Test collection detail view with different collection sizes\n4. Validate collection statistics visualization\n5. Test document movement between collections\n6. Verify collection export/import functionality\n7. Test collection deletion with safety checks\n8. Validate responsive behavior of collection views",
+        "priority": "medium",
+        "dependencies": [
+          2,
+          3,
+          6
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 8,
+        "title": "Workflow Management Interface",
+        "description": "Create an interface for triggering predefined workflows, monitoring workflow status, and viewing execution history.",
+        "details": "1. Implement workflow management page in `/app/workflows/page.tsx`\n2. Create workflow list component with status indicators\n3. Implement workflow trigger interface for predefined workflows via `/workflows/trigger/{workflow_name}` endpoint\n4. Add workflow status monitoring and execution history\n5. Create workflow detail view in `/app/workflows/[name]/page.tsx`\n6. Implement workflow input configuration forms with validation\n7. Add results viewing and export capabilities\n8. Create workflow execution timeline visualization\n9. Implement workflow search and filtering\n10. Add workflow scheduling functionality\n11. Create workflow notification system\n12. Implement workflow retry functionality for failed workflows",
+        "testStrategy": "1. Test workflow triggering with various input configurations\n2. Verify workflow status monitoring with different workflow states\n3. Test workflow execution history display\n4. Validate results viewing and export functionality\n5. Test workflow search and filtering\n6. Verify workflow scheduling functionality\n7. Test workflow notification system\n8. Validate workflow retry functionality",
+        "priority": "medium",
+        "dependencies": [
+          2,
+          3
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 9,
+        "title": "RAG Configuration Management Interface",
+        "description": "Implement a form-based RAG configuration creation and management interface with validation, testing, and version tracking.",
+        "details": "1. Create RAG configuration management page in `/app/configurations/page.tsx`\n2. Implement configuration list component with key details\n3. Create configuration detail view in `/app/configurations/[id]/page.tsx`\n4. Implement form-based RAG configuration creation with validation using `/rag/config` endpoint\n5. Add configuration viewing and management via `/rag/config/{config_id}`\n6. Create configuration testing and validation functionality\n7. Implement configuration history and version tracking\n8. Add configuration duplication functionality\n9. Create configuration export/import capabilities\n10. Implement configuration search and filtering\n11. Add configuration comparison tool\n12. Create configuration usage analytics",
+        "testStrategy": "1. Test configuration creation with various parameters\n2. Verify configuration validation functionality\n3. Test configuration testing with sample data\n4. Validate configuration history and version tracking\n5. Test configuration duplication functionality\n6. Verify configuration export/import capabilities\n7. Test configuration search and filtering\n8. Validate configuration comparison tool",
+        "priority": "medium",
+        "dependencies": [
+          2,
+          3
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Configuration List and Detail Views",
+            "description": "Implement the UI components for displaying RAG configurations in both list and detailed views.",
+            "dependencies": [],
+            "details": "Create a responsive table view showing all configurations with columns for name, creation date, last modified date, status, and actions. Implement filtering, sorting, and pagination. For the detail view, create a comprehensive layout displaying all configuration parameters organized in logical sections (data sources, embedding models, retrieval settings, etc.). Include a sidebar navigation for quick access to different sections of the configuration. Use React components with TypeScript interfaces for all configuration data models. Implement API integration with proper loading states and error handling.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 2,
+            "title": "Form-based Configuration Creation with Validation",
+            "description": "Develop a multi-step form interface for creating and editing RAG configurations with comprehensive validation.",
+            "dependencies": [
+              1
+            ],
+            "details": "Implement a wizard-style form with steps for: 1) Basic information (name, description), 2) Data source selection, 3) Embedding model configuration, 4) Retrieval settings, 5) Generation parameters. Use Formik or React Hook Form for form state management. Implement validation rules: required fields, format validation for URLs and API keys, numerical range validation for parameters like chunk size and top-k values. Add real-time validation feedback with clear error messages. Include conditional form fields that appear based on previous selections. Implement form persistence to prevent data loss during navigation.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 3,
+            "title": "Configuration Testing and Validation Functionality",
+            "description": "Create an interface for testing RAG configurations with sample queries and visualizing results.",
+            "dependencies": [
+              2
+            ],
+            "details": "Implement a testing panel allowing users to input sample queries and view the complete RAG pipeline results. Display intermediate results including: retrieved documents with relevance scores, embedding visualizations, and final generated responses. Add functionality to save test queries and results for future reference. Implement integration with backend validation API endpoints that perform configuration syntax checking and parameter validation. Create visual indicators for performance metrics (latency, token usage, etc.). Include a debug mode showing detailed logs of the RAG process steps.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 4,
+            "title": "Version Tracking and History Management",
+            "description": "Implement version control features for RAG configurations with history tracking and rollback capabilities.",
+            "dependencies": [
+              1,
+              2
+            ],
+            "details": "Create a version history view showing all changes to a configuration over time with timestamps and user information. Implement diff visualization to highlight changes between versions. Add functionality to restore previous versions with confirmation dialogs. Implement version tagging and naming for important releases. Create an audit log showing who made changes and when. Design the UI to handle branching versions if supported by the backend. Ensure proper API integration with version management endpoints including error handling for version conflicts.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 5,
+            "title": "Configuration Comparison and Analytics",
+            "description": "Develop tools for comparing different RAG configurations and analyzing their performance metrics.",
+            "dependencies": [
+              1,
+              3,
+              4
+            ],
+            "details": "Create a side-by-side comparison view for two or more configurations highlighting differences in parameters. Implement visualization components for performance metrics including: retrieval precision/recall, response quality scores, latency measurements, and token usage. Add functionality to run benchmark tests across multiple configurations with the same test queries. Create exportable reports of comparison results. Design interactive charts showing performance trends over time as configurations evolve. Implement tagging and categorization of configurations to organize them for comparison purposes.",
+            "status": "pending",
+            "testStrategy": ""
+          }
+        ]
+      },
+      {
+        "id": 10,
+        "title": "Analytics Dashboard Implementation",
+        "description": "Create a comprehensive analytics dashboard with system performance metrics, document processing statistics, and business metrics visualization.",
+        "details": "1. Implement analytics dashboard page in `/app/analytics/page.tsx`\n2. Create system performance metrics visualization using Recharts\n3. Add document processing statistics via `/documents/processing/stats`\n4. Implement collection analytics via `/collections/{collection_name}/stats`\n5. Create business metrics dashboard using `/business-metrics` endpoint\n6. Add time range selection for all metrics\n7. Implement data export functionality for analytics\n8. Create custom dashboard with configurable widgets\n9. Add metric comparison functionality\n10. Implement trend analysis visualization\n11. Create anomaly detection for key metrics\n12. Add report generation functionality",
+        "testStrategy": "1. Test metrics visualization with various data sets\n2. Verify time range selection functionality\n3. Test data export functionality\n4. Validate custom dashboard configuration\n5. Test metric comparison functionality\n6. Verify trend analysis visualization\n7. Test anomaly detection with simulated abnormal data\n8. Validate report generation functionality",
+        "priority": "medium",
+        "dependencies": [
+          2,
+          3,
+          5
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "System Performance Metrics Visualization",
+            "description": "Implement visualizations for system performance metrics including CPU usage, memory utilization, response times, and throughput.",
+            "dependencies": [],
+            "details": "Data Requirements: Connect to system monitoring APIs to collect real-time and historical performance data. Visualization Specifications: Create line charts for time-series data, gauge charts for current utilization, and heat maps for identifying performance bottlenecks. Interaction Details: Allow users to hover for detailed metrics, zoom in/out on time periods, and set threshold alerts.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 2,
+            "title": "Document Processing and Collection Analytics",
+            "description": "Develop analytics visualizations for document processing workflows, including ingestion rates, processing times, and collection statistics.",
+            "dependencies": [],
+            "details": "Data Requirements: Integrate with document database to extract metadata on document counts, processing status, and collection growth. Visualization Specifications: Implement stacked bar charts for document types, funnel charts for processing stages, and tables for detailed document metadata. Interaction Details: Enable filtering by document type, date ranges, and processing status with drill-down capabilities.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 3,
+            "title": "Business Metrics Dashboard with Time Range Selection",
+            "description": "Create a comprehensive business metrics dashboard with flexible time range selection for KPI monitoring and business performance analysis.",
+            "dependencies": [
+              1,
+              2
+            ],
+            "details": "Data Requirements: Connect to business data sources for revenue, user engagement, conversion rates, and other KPIs. Visualization Specifications: Design card views for key metrics, comparison charts for period-over-period analysis, and composite visualizations for related metrics. Interaction Details: Implement date range picker with presets (day, week, month, quarter, year), comparison toggle, and export functionality.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 4,
+            "title": "Custom Dashboard with Configurable Widgets",
+            "description": "Implement a customizable dashboard framework allowing users to add, remove, resize, and configure visualization widgets based on their needs.",
+            "dependencies": [
+              3
+            ],
+            "details": "Data Requirements: Create a widget configuration schema and storage mechanism for saving user preferences. Visualization Specifications: Develop a widget library with various chart types, data tables, and metric displays. Interaction Details: Enable drag-and-drop widget placement, resizing handles, widget settings panel, and dashboard layout persistence.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 5,
+            "title": "Trend Analysis and Anomaly Detection",
+            "description": "Implement advanced analytics capabilities for identifying trends, patterns, and anomalies in the collected data.",
+            "dependencies": [
+              3,
+              4
+            ],
+            "details": "Data Requirements: Integrate with statistical analysis libraries and historical data repositories. Visualization Specifications: Create trend line overlays, confidence interval bands, anomaly highlighting, and forecasting projections. Interaction Details: Allow users to adjust sensitivity parameters, select detection algorithms, receive anomaly alerts, and investigate detected patterns through interactive exploration.",
+            "status": "pending",
+            "testStrategy": ""
+          }
+        ]
+      },
+      {
+        "id": 11,
+        "title": "Document Upload and Processing Interface",
+        "description": "Implement a document upload interface with drag-and-drop functionality, progress tracking, and processing status monitoring.",
+        "details": "1. Create document upload component using react-dropzone\n2. Implement file validation for supported document types\n3. Add upload progress tracking with visual indicators\n4. Create document processing status monitoring\n5. Implement batch upload functionality\n6. Add collection selection during upload\n7. Create metadata editing during upload\n8. Implement upload error handling and retry functionality\n9. Add upload history tracking\n10. Create upload settings configuration\n11. Implement upload cancellation functionality\n12. Add post-upload processing options",
+        "testStrategy": "1. Test document upload with various file types and sizes\n2. Verify upload progress tracking\n3. Test document processing status monitoring\n4. Validate batch upload functionality\n5. Test collection selection during upload\n6. Verify metadata editing during upload\n7. Test upload error handling and retry functionality\n8. Validate upload cancellation functionality",
+        "priority": "high",
+        "dependencies": [
+          2,
+          3,
+          6
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 12,
+        "title": "Settings and User Preferences Interface",
+        "description": "Create a settings interface for system configuration and user preferences management.",
+        "details": "1. Implement settings page in `/app/settings/page.tsx`\n2. Create user preferences section for dashboard customization\n3. Add theme configuration (light/dark mode)\n4. Implement notification settings\n5. Create API configuration settings\n6. Add data refresh interval configuration\n7. Implement export/import settings functionality\n8. Create language preferences (for future localization)\n9. Add accessibility settings\n10. Implement default view configurations\n11. Create keyboard shortcut customization\n12. Add user profile management",
+        "testStrategy": "1. Test user preferences saving and loading\n2. Verify theme configuration functionality\n3. Test notification settings\n4. Validate API configuration settings\n5. Test data refresh interval configuration\n6. Verify export/import settings functionality\n7. Test default view configurations\n8. Validate keyboard shortcut customization",
+        "priority": "low",
+        "dependencies": [
+          2,
+          3
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 13,
+        "title": "Error Handling and Feedback System",
+        "description": "Implement a comprehensive error handling and user feedback system throughout the application.",
+        "details": "1. Create global error boundary component\n2. Implement section-specific error boundaries\n3. Add toast notification system using react-hot-toast or similar\n4. Create error logging service\n5. Implement form validation error handling\n6. Add API error handling with user-friendly messages\n7. Create loading indicators and skeleton screens\n8. Implement optimistic updates with rollback on error\n9. Add retry functionality for failed operations\n10. Create error reporting mechanism\n11. Implement offline detection and handling\n12. Add guided error resolution for common issues",
+        "testStrategy": "1. Test error boundaries with simulated errors\n2. Verify toast notification system\n3. Test form validation error handling\n4. Validate API error handling with various error scenarios\n5. Test loading indicators and skeleton screens\n6. Verify optimistic updates with rollback on error\n7. Test retry functionality for failed operations\n8. Validate offline detection and handling",
+        "priority": "high",
+        "dependencies": [
+          2,
+          3
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 14,
+        "title": "Data Visualization Components with Recharts",
+        "description": "Create reusable data visualization components using Recharts for system metrics, document processing statistics, and business analytics.",
+        "details": "1. Implement base chart components for different chart types (line, bar, area, pie)\n2. Create time series chart component with time range selection\n3. Add responsive chart components that adapt to container size\n4. Implement chart tooltip and legend components\n5. Create dashboard metric card components\n6. Add chart color scheme management\n7. Implement chart export functionality (PNG, SVG, CSV)\n8. Create chart animation and interaction effects\n9. Add chart data transformation utilities\n10. Implement chart theme support (light/dark mode)\n11. Create chart loading and error states\n12. Add chart accessibility features",
+        "testStrategy": "1. Test chart rendering with various data sets\n2. Verify responsive behavior on different screen sizes\n3. Test tooltip and legend functionality\n4. Validate chart export functionality\n5. Test chart animation and interaction effects\n6. Verify chart theme support\n7. Test chart loading and error states\n8. Validate chart accessibility features",
+        "priority": "medium",
+        "dependencies": [
+          1
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 15,
+        "title": "Performance Optimization and Caching Strategy",
+        "description": "Implement performance optimizations and caching strategies throughout the application for improved user experience.",
+        "details": "1. Configure React Query caching strategies for different data types\n2. Implement optimistic updates for common operations\n3. Add lazy loading for components and routes\n4. Create virtualized lists for large data sets using react-window or similar\n5. Implement image optimization using Next.js Image component\n6. Add memoization for expensive computations\n7. Create efficient re-rendering strategies using React.memo and useMemo\n8. Implement code splitting for large components\n9. Add prefetching for likely user paths\n10. Create service worker for offline support\n11. Implement bundle optimization techniques\n12. Add performance monitoring and reporting",
+        "testStrategy": "1. Measure and compare performance before and after optimizations\n2. Test caching behavior with various scenarios\n3. Verify optimistic updates functionality\n4. Test lazy loading and code splitting\n5. Validate virtualized lists with large data sets\n6. Measure bundle sizes and load times\n7. Test offline support with service worker\n8. Validate performance in different browsers and devices",
+        "priority": "medium",
+        "dependencies": [
+          2,
+          3,
+          4
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Implement React Query Caching Strategies and Optimistic Updates",
+            "description": "Optimize data fetching and state management using React Query's caching capabilities and implement optimistic updates for improved user experience.",
+            "dependencies": [],
+            "details": "1. Configure proper cacheTime and staleTime for different query types\n2. Implement query invalidation strategies for data consistency\n3. Set up optimistic updates for form submissions and data mutations\n4. Add prefetching for anticipated user actions\n5. Implement background data refreshing\n6. Measure improvements using React Query Devtools and performance metrics (Time to Interactive, API call frequency)\n7. Document caching strategy decisions and their impact",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 2,
+            "title": "Optimize Components with Lazy Loading, Memoization, and Code Splitting",
+            "description": "Improve component rendering performance through strategic implementation of React optimization techniques.",
+            "dependencies": [
+              1
+            ],
+            "details": "1. Identify and implement React.lazy() for route-based code splitting\n2. Apply React.memo() to prevent unnecessary re-renders in appropriate components\n3. Implement useMemo and useCallback hooks for expensive calculations and callback functions\n4. Set up dynamic imports for large components and libraries\n5. Use React Profiler to identify and fix render bottlenecks\n6. Measure and document performance improvements (component render times, bundle size reduction)\n7. Create guidelines for future component optimization",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 3,
+            "title": "Implement List Virtualization and Image Optimization",
+            "description": "Optimize rendering of large lists and image loading to reduce memory usage and improve perceived performance.",
+            "dependencies": [
+              2
+            ],
+            "details": "1. Implement react-window or react-virtualized for long scrollable lists\n2. Set up lazy loading for off-screen images using Intersection Observer\n3. Implement proper image sizing and responsive images\n4. Configure image compression and modern formats (WebP, AVIF)\n5. Add blur-up or skeleton loading states for images\n6. Measure improvements in memory usage, scroll performance, and Largest Contentful Paint\n7. Document virtualization strategy and image optimization techniques",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 4,
+            "title": "Optimize Service Worker and Bundle Size",
+            "description": "Implement service worker strategies and reduce bundle size to improve application load time and offline capabilities.",
+            "dependencies": [
+              3
+            ],
+            "details": "1. Configure service worker for offline access to critical resources\n2. Implement cache strategies (stale-while-revalidate, cache-first) for different asset types\n3. Set up tree-shaking and dead code elimination\n4. Analyze and reduce bundle size using webpack-bundle-analyzer\n5. Implement code splitting at the route level\n6. Configure proper cache headers and CDN settings\n7. Measure improvements in Lighthouse scores, bundle size, and load times\n8. Document service worker strategy and bundle optimization techniques",
+            "status": "pending",
+            "testStrategy": ""
+          }
+        ]
+      },
+      {
+        "id": 16,
+        "title": "Accessibility Implementation",
+        "description": "Ensure the application meets accessibility standards (WCAG 2.1 AA) through comprehensive accessibility implementation.",
+        "details": "1. Implement proper semantic HTML throughout the application\n2. Add ARIA attributes where necessary\n3. Create keyboard navigation support for all interactive elements\n4. Implement focus management for modals and dialogs\n5. Add screen reader announcements for dynamic content\n6. Create high contrast mode support\n7. Implement color blind friendly color schemes\n8. Add text zoom support\n9. Create skip navigation links\n10. Implement form error announcements for screen readers\n11. Add motion reduction support\n12. Create accessibility documentation",
+        "testStrategy": "1. Test with screen readers (NVDA, VoiceOver, JAWS)\n2. Verify keyboard navigation throughout the application\n3. Test focus management in modals and dialogs\n4. Validate color contrast using automated tools\n5. Test with text zoom and page zoom\n6. Verify skip navigation functionality\n7. Test form error announcements with screen readers\n8. Validate motion reduction support",
+        "priority": "medium",
+        "dependencies": [
+          3
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 17,
+        "title": "Responsive Design Implementation",
+        "description": "Ensure the application is fully responsive and provides an optimal experience across desktop and tablet devices.",
+        "details": "1. Implement responsive layout using Tailwind CSS breakpoints\n2. Create responsive navigation that adapts to screen size\n3. Implement responsive tables with horizontal scrolling or card views\n4. Add responsive form layouts\n5. Create responsive chart components that adapt to container size\n6. Implement responsive grid layouts for dashboard and analytics\n7. Add touch-friendly interactions for tablet devices\n8. Create responsive modals and dialogs\n9. Implement responsive typography using Tailwind CSS\n10. Add responsive spacing and margins\n11. Create device-specific optimizations\n12. Implement responsive image handling",
+        "testStrategy": "1. Test on various screen sizes and resolutions\n2. Verify navigation functionality on different devices\n3. Test touch interactions on tablet devices\n4. Validate form usability on smaller screens\n5. Test chart readability on different screen sizes\n6. Verify modal and dialog usability on smaller screens\n7. Test typography readability across devices\n8. Validate overall user experience on target devices",
+        "priority": "high",
+        "dependencies": [
+          3
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 18,
+        "title": "Documentation and Deployment Preparation",
+        "description": "Create comprehensive documentation and prepare the application for deployment.",
+        "details": "1. Create user documentation with feature guides\n2. Implement in-app help system\n3. Add code documentation with JSDoc comments\n4. Create component storybook for UI components\n5. Implement API documentation\n6. Add deployment configuration for production\n7. Create CI/CD pipeline configuration\n8. Implement environment configuration management\n9. Add logging and monitoring setup\n10. Create backup and disaster recovery plan\n11. Implement security best practices\n12. Add performance monitoring configuration",
+        "testStrategy": "1. Verify documentation accuracy and completeness\n2. Test in-app help system functionality\n3. Validate component storybook examples\n4. Test deployment configuration in staging environment\n5. Verify CI/CD pipeline functionality\n6. Test environment configuration in different environments\n7. Validate logging and monitoring setup\n8. Test security measures with automated scanning tools",
+        "priority": "medium",
+        "dependencies": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17
+        ],
+        "status": "pending",
+        "subtasks": []
+      }
+    ],
+    "metadata": {
+      "created": "2025-07-06T08:38:50.347Z",
+      "updated": "2025-07-06T08:38:50.347Z",
+      "description": "Tasks for master context"
+    }
+  }
+}
