@@ -151,7 +151,7 @@ Create an intelligent dashboard that transforms complex RAG operations into an a
 
 ### 6.1 Architecture
 
-- **Frontend**: Next.js 14+ with TypeScript and App Router
+- **Frontend**: Next.js 15+ with TypeScript and App Router
 - **UI Framework**: shadcn/ui components with Tailwind CSS for styling
 - **State Management**: React Context API and React Query (TanStack Query) for server state
 - **Visualization**: Recharts for charts and data visualization
@@ -198,7 +198,7 @@ Create an intelligent dashboard that transforms complex RAG operations into an a
 
 **Week 1: Project Bootstrap**
 
-- Set up Next.js 14 project with TypeScript and shadcn/ui
+- Set up Next.js 15 project with TypeScript and shadcn/ui
 - Configure basic routing structure and layout components
 - Implement simple API client with React Query
 - Create basic health check page to test API connectivity

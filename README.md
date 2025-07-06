@@ -6,7 +6,7 @@ An intelligent, web-based management interface that provides comprehensive visib
 
 ### Prerequisites
 
-- **Node.js** >= 18.0.0
+- **Node.js** >= 18.17.0 (required for Next.js 15)
 - **pnpm** >= 8.0.0 (required - see Package Manager section below)
 
 ### Installation
@@ -87,7 +87,7 @@ node scripts/check-package-manager.js --fix
 
 Built with:
 
-- **Next.js 14** - App Router for modern React development
+- **Next.js 15** - App Router with Turbopack bundler for modern React development
 - **TypeScript** - Type safety and developer experience
 - **shadcn/ui** - High-quality UI components
 - **Tailwind CSS** - Utility-first CSS framework
@@ -187,7 +187,7 @@ git commit -m "feat: add document upload functionality"
 
 ## 📚 Resources
 
-- [Next.js 14 Documentation](https://nextjs.org/docs)
+- [Next.js 15 Documentation](https://nextjs.org/docs)
 - [pnpm Documentation](https://pnpm.io/)
 - [shadcn/ui Components](https://ui.shadcn.com/)
 - [React Query Guide](https://tanstack.com/query/latest)
