@@ -5,7 +5,7 @@
         "id": 1,
         "title": "Project Setup with Next.js 15, TypeScript, and shadcn/ui",
         "description": "Initialize the project repository with Next.js 15, TypeScript, and configure shadcn/ui components with Tailwind CSS for styling using pnpm as the package manager for improved performance and dependency management.",
-        "status": "pending",
+        "status": "done",
         "dependencies": [],
         "priority": "high",
         "details": "1. Install pnpm globally: `npm install -g pnpm`\n2. Create a new Next.js 15 project with TypeScript support using `pnpm create next-app@latest agentic-workflow-dashboard` with the App Router\n3. Create .npmrc file with proper Next.js configuration and package manager enforcement:\n   ```\n   node-linker=hoisted\n   shamefully-hoist=true\n   engine-strict=true\n   ```\n4. Configure Tailwind CSS (should be included in the Next.js setup)\n5. Install and configure shadcn/ui using their CLI: `pnpm dlx shadcn-ui@latest init`\n6. Set up ESLint and Prettier for code quality\n7. Configure directory structure following Next.js 15 best practices:\n   - `/app` - App Router pages and layouts\n   - `/components` - Reusable UI components\n   - `/lib` - Utility functions and shared code\n   - `/types` - TypeScript type definitions\n   - `/styles` - Global styles and Tailwind customizations\n   - `/scripts` - Utility scripts including package manager enforcement\n8. Set up Git repository with appropriate .gitignore, including entries to ignore npm and yarn lock files:\n   ```\n   # Package manager locks (except pnpm)\n   package-lock.json\n   yarn.lock\n   ```\n9. Create a basic README.md with project setup instructions including package manager requirements\n10. Install React Query (TanStack Query v5): `pnpm add @tanstack/react-query@latest @tanstack/react-query-devtools@latest`\n11. Configure React Query provider in the app layout\n12. Update all package.json scripts to work with pnpm:\n   ```json\n   {\n     \"scripts\": {\n       \"dev\": \"next dev\",\n       \"build\": \"next build\", \n       \"start\": \"next start\",\n       \"lint\": \"next lint\",\n       \"type-check\": \"tsc --noEmit\",\n       \"format\": \"prettier --write \\\"**/*.{ts,tsx,md}\\\"\",\n       \"analyze\": \"ANALYZE=true next build\"\n     }\n   }\n   ```\n13. Configure CI/CD optimization with pnpm store directory\n14. Set up package.json engines field to enforce pnpm usage and Node.js requirements:\n   ```json\n   \"engines\": {\n     \"node\": \">=18.17.0\",\n     \"pnpm\": \">=8.0.0\"\n   }\n   ```\n15. Create a package manager enforcement script at scripts/check-package-manager.js\n16. Configure next.config.js for Next.js 15:\n   ```javascript\n   /** @type {import('next').NextConfig} */\n   const nextConfig = {\n     reactStrictMode: true,\n     images: {\n       domains: ['api.your-domain.com'],\n       formats: ['image/avif', 'image/webp'], // Enhanced formats\n     },\n     experimental: {\n       serverActions: {\n         allowedOrigins: ['localhost:3000', 'your-production-domain.com'],\n       },\n       optimizeCss: true,\n       serverComponentsExternalPackages: [],\n     },\n   }\n\n   module.exports = nextConfig\n   ```\n17. Update TypeScript configuration for Next.js 15 compatibility",
@@ -24,7 +24,7 @@
             "id": 2,
             "title": "Create package manager enforcement script",
             "description": "Develop a script to enforce pnpm usage and prevent npm/yarn usage across the team.",
-            "status": "pending",
+            "status": "done",
             "dependencies": [],
             "details": "1. Create scripts/check-package-manager.js to detect and block non-pnpm usage\n2. Add script to package.json preinstall hook to run automatically\n3. Include clear error messages explaining why pnpm is required\n4. Document the enforcement mechanism in README.md",
             "testStrategy": "1. Test script with npm install and verify it blocks the operation\n2. Test script with yarn install and verify it blocks the operation\n3. Verify script allows pnpm install to proceed normally"
@@ -33,7 +33,7 @@
             "id": 3,
             "title": "Configure package manager enforcement in project files",
             "description": "Update project configuration files to enforce pnpm usage across the team.",
-            "status": "pending",
+            "status": "done",
             "dependencies": [
               2
             ],
@@ -44,7 +44,7 @@
             "id": 4,
             "title": "Configure Next.js 15 specific settings",
             "description": "Set up Next.js 15 specific configuration files and handle breaking changes from previous versions.",
-            "status": "pending",
+            "status": "done",
             "dependencies": [],
             "details": "1. Create next.config.js with Next.js 15 specific settings including Turbopack configuration\n2. Update tsconfig.json with the latest TypeScript configuration for Next.js 15\n3. Update Image component usage to remove deprecated layout prop\n4. Configure Server Actions with proper allowedOrigins\n5. Document Turbopack as the default bundler in README.md",
             "testStrategy": "1. Verify next.config.js contains all required Next.js 15 configurations\n2. Test build process to confirm Turbopack is working correctly\n3. Validate that Image components work with the new API\n4. Test Server Actions functionality with the new configuration"
@@ -53,7 +53,7 @@
             "id": 5,
             "title": "Update package.json scripts for Next.js 15",
             "description": "Configure package.json scripts to work optimally with Next.js 15 and pnpm.",
-            "status": "pending",
+            "status": "done",
             "dependencies": [],
             "details": "1. Add all required scripts to package.json:\n   - dev: \"next dev\"\n   - build: \"next build\"\n   - start: \"next start\"\n   - lint: \"next lint\"\n   - type-check: \"tsc --noEmit\"\n   - format: \"prettier --write \\\"**/*.{ts,tsx,md}\\\"\"\n   - analyze: \"ANALYZE=true next build\"\n2. Document script usage in README.md",
             "testStrategy": "1. Test each script to ensure it works correctly\n2. Verify that the type-check script correctly identifies TypeScript errors\n3. Test the analyze script to ensure it generates build analytics"
@@ -62,7 +62,7 @@
             "id": 6,
             "title": "Update documentation to reflect Next.js 15",
             "description": "Update all documentation and references to reflect Next.js 15 instead of Next.js 14.",
-            "status": "pending",
+            "status": "done",
             "dependencies": [
               1
             ],
@@ -594,7 +594,7 @@
     ],
     "metadata": {
       "created": "2025-07-06T08:38:50.347Z",
-      "updated": "2025-07-06T08:38:50.347Z",
+      "updated": "2025-07-06T11:49:22.396Z",
       "description": "Tasks for master context"
     }
   }
