@@ -39,6 +39,8 @@ export type {
   UpdateCollectionRequest,
   CollectionSearchRequest,
   CollectionSearchResponse,
+  CollectionDocumentsResponse,
+  AddDocumentToCollectionRequest,
 
   // Workflow types
   WorkflowsResponse,
@@ -48,7 +50,6 @@ export type {
   ExecuteWorkflowRequest,
   WorkflowExecutionResponse,
   WorkflowExecutionsResponse,
-  WorkflowExecutionStatus,
 
   // RAG types
   RAGQueryRequest,
@@ -57,9 +58,20 @@ export type {
 
   // Business metrics types
   BusinessMetricsSummaryResponse,
+  BusinessMetricsResponse,
+  KPIResponse,
+  PerformanceMetricsResponse,
+  UsageMetricsResponse,
+  CostMetricsResponse,
+  MetricsFilterRequest,
+  CreateKPIRequest,
+  UpdateKPIRequest,
+  AnalyticsReportRequest,
+  AnalyticsReportResponse,
+  MetricsExportRequest,
+  MetricsExportResponse,
 
   // Common types
   PaginationParams,
   BaseEntity,
-  ApiError,
 } from "@/types/api";

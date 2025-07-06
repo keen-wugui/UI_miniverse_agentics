@@ -37,9 +37,12 @@
       "detail": "/collections/{id}",
       "update": "/collections/{id}",
       "delete": "/collections/{id}",
+      "search": "/collections/search",
       "documents": "/collections/{id}/documents",
       "addDocument": "/collections/{id}/documents/{docId}",
-      "removeDocument": "/collections/{id}/documents/{docId}"
+      "removeDocument": "/collections/{id}/documents/{docId}",
+      "bulkAddDocuments": "/collections/{id}/documents/bulk",
+      "stats": "/collections/{id}/stats"
     },
     "workflows": {
       "base": "/workflows",
@@ -49,6 +52,9 @@
       "update": "/workflows/{id}",
       "delete": "/workflows/{id}",
       "execute": "/workflows/{id}/execute",
+      "executions": "/workflows/{id}/executions",
+      "executionStatus": "/workflows/executions/{executionId}",
+      "cancelExecution": "/workflows/executions/{executionId}/cancel",
       "status": "/workflows/{id}/status",
       "results": "/workflows/{id}/results"
     },
@@ -64,7 +70,16 @@
     },
     "businessMetrics": {
       "base": "/business-metrics",
+      "overview": "/business-metrics/overview",
       "summary": "/business-metrics/summary",
+      "kpis": "/business-metrics/kpis",
+      "createKPI": "/business-metrics/kpis",
+      "updateKPI": "/business-metrics/kpis/{id}",
+      "deleteKPI": "/business-metrics/kpis/{id}",
+      "reports": "/business-metrics/reports",
+      "export": "/business-metrics/export",
+      "realtime": "/business-metrics/realtime",
+      "alerts": "/business-metrics/alerts",
       "performance": "/business-metrics/performance",
       "usage": "/business-metrics/usage",
       "costs": "/business-metrics/costs"
