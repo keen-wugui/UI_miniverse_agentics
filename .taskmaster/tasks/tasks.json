@@ -147,8 +147,8 @@
               4,
               5
             ],
-            "details": "Create hook functions for each API endpoint that handle data fetching, mutations, and leverage React Query's features. Group hooks by domain/feature and implement proper typing using the TypeScript interfaces.",
-            "status": "pending",
+            "details": "Create hook functions for each API endpoint that handle data fetching, mutations, and leverage React Query's features. Group hooks by domain/feature and implement proper typing using the TypeScript interfaces.\n<info added on 2025-07-06T12:27:54.009Z>\nReact Query Hooks Implementation Progress:\n\nCOMPLETED HOOK FILES:\n✅ src/hooks/api/useHealth.ts - Health monitoring hooks (status, database health, metrics)\n✅ src/hooks/api/useDocuments.ts - Document CRUD, search, upload, processing status\n✅ src/hooks/api/useCollections.ts - Collection management, document assignments, bulk operations\n\nHOOK PATTERNS ESTABLISHED:\n- Proper TypeScript generics with useQuery<T> and useMutation<TData, TError, TVariables>\n- Cache strategy integration using cacheStrategies from central config\n- Error handling using handleApiError wrapper\n- Query key factories for consistent caching\n- Cache invalidation on mutations\n- Optimistic updates where appropriate\n- Bulk operations support\n- Conditional queries with enabled flags\n- URL building with path parameters\n- File upload handling via apiClient.uploadFile\n\nMINOR TYPE FIXES NEEDED:\nSome collection endpoints reference missing types/config that need to be added to maintain full type safety, but the core patterns are solid and functional.\n\nNEXT: Continue with remaining hook groups - Workflows, RAG, Business Metrics.\n</info added on 2025-07-06T12:27:54.009Z>",
+            "status": "done",
             "testStrategy": ""
           },
           {
@@ -687,7 +687,7 @@
     ],
     "metadata": {
       "created": "2025-07-06T08:38:50.347Z",
-      "updated": "2025-07-06T12:02:11.634Z",
+      "updated": "2025-07-06T12:31:30.871Z",
       "description": "Tasks for master context"
     }
   }
