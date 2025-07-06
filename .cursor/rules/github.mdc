@@ -1,0 +1,6 @@
+---
+description: Read this when working with github or git
+globs: 
+alwaysApply: false
+---
+Always git ignore binaries and venv files to keep the git repo clean

@@ -1,0 +1,11 @@
+---
+description: Generate three HTML variants for a selected element and refine the chosen variant.
+globs:
+  - "*.html"
+alwaysApply: false
+---
+
+- On `@iterate-html` for a selected HTML snippet, produce **Version 1**, **Version 2**, and **Version 3**, each separated by `<!-- Version X -->`.  
+- Prompt: “Which version would you like to refine?”  
+- When the user replies with “Version N”, take that version and generate three new refined variants labeled **N.1**, **N.2**, **N.3**.  
+- Preserve original semantics and improve accessibility (e.g., ARIA attributes) on each refinement.  

@@ -1,0 +1,14 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+Always update README.md in the directory if you are making changes relevant to the function or features of the directory you are in. If the README.md file does not exsit in the current directory, create one. 
+
+If there are items you recommend for futher consideration, put them in inline comments with tag: [to-do] so it will be picked up later. When you are more than 90% confident that you need to add/modify tasks in task-master-ai, please go ahead and do so. When interfacing with task-master-ai, review existing tasks first to see if you can augment the existing (e.g. adding a subtask) instead of creating brand new tasks. 
+
+Do not change the code until you have above 95% confidence that what you are about to change is right and your goal is well defined; if not sure, please ask me clarification questions until you have above 95% confidence. 
+
+Always proceed if the question is simply yes/no unless you have finished the task or you really need to clarify 
+
+If you face access issues and you don't have access to the .env file to review the issue, please ask the human user to review for you. 
