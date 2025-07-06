@@ -1,0 +1,144 @@
+{
+  "api": {
+    "baseUrl": "http://localhost:8000",
+    "version": "v1",
+    "timeout": 30000,
+    "retries": {
+      "maxAttempts": 3,
+      "delay": 1000,
+      "backoffMultiplier": 2,
+      "retryableStatusCodes": [408, 429, 500, 502, 503, 504]
+    },
+    "authentication": {
+      "type": "bearer",
+      "headerName": "Authorization",
+      "tokenPrefix": "Bearer "
+    }
+  },
+  "endpoints": {
+    "health": {
+      "base": "/health",
+      "database": "/health/database",
+      "databaseMetrics": "/health/database/metrics"
+    },
+    "documents": {
+      "base": "/documents",
+      "upload": "/documents/upload",
+      "list": "/documents",
+      "detail": "/documents/{id}",
+      "delete": "/documents/{id}",
+      "search": "/documents/search",
+      "extract": "/documents/{id}/extract"
+    },
+    "collections": {
+      "base": "/collections",
+      "list": "/collections",
+      "create": "/collections",
+      "detail": "/collections/{id}",
+      "update": "/collections/{id}",
+      "delete": "/collections/{id}",
+      "documents": "/collections/{id}/documents",
+      "addDocument": "/collections/{id}/documents/{docId}",
+      "removeDocument": "/collections/{id}/documents/{docId}"
+    },
+    "workflows": {
+      "base": "/workflows",
+      "list": "/workflows",
+      "create": "/workflows",
+      "detail": "/workflows/{id}",
+      "update": "/workflows/{id}",
+      "delete": "/workflows/{id}",
+      "execute": "/workflows/{id}/execute",
+      "status": "/workflows/{id}/status",
+      "results": "/workflows/{id}/results"
+    },
+    "rag": {
+      "config": "/rag/config",
+      "updateConfig": "/rag/config",
+      "embeddingModels": "/rag/config/embedding-models",
+      "llmModels": "/rag/config/llm-models",
+      "chunking": "/rag/config/chunking",
+      "retrieval": "/rag/config/retrieval",
+      "query": "/rag/query",
+      "chat": "/rag/chat"
+    },
+    "businessMetrics": {
+      "base": "/business-metrics",
+      "summary": "/business-metrics/summary",
+      "performance": "/business-metrics/performance",
+      "usage": "/business-metrics/usage",
+      "costs": "/business-metrics/costs"
+    }
+  },
+  "cache": {
+    "default": {
+      "staleTime": 300000,
+      "cacheTime": 600000,
+      "refetchOnWindowFocus": false,
+      "refetchOnReconnect": true
+    },
+    "strategies": {
+      "health": {
+        "staleTime": 30000,
+        "cacheTime": 60000,
+        "refetchInterval": 30000
+      },
+      "documents": {
+        "staleTime": 120000,
+        "cacheTime": 300000,
+        "refetchOnWindowFocus": false
+      },
+      "collections": {
+        "staleTime": 180000,
+        "cacheTime": 600000,
+        "refetchOnWindowFocus": false
+      },
+      "workflows": {
+        "staleTime": 60000,
+        "cacheTime": 300000,
+        "refetchOnWindowFocus": true
+      },
+      "rag": {
+        "staleTime": 600000,
+        "cacheTime": 1800000,
+        "refetchOnWindowFocus": false
+      },
+      "businessMetrics": {
+        "staleTime": 300000,
+        "cacheTime": 900000,
+        "refetchInterval": 300000
+      }
+    }
+  },
+  "logging": {
+    "enabled": true,
+    "level": "info",
+    "logRequests": true,
+    "logResponses": true,
+    "logErrors": true
+  },
+  "errorHandling": {
+    "showToasts": true,
+    "retryOnNetworkError": true,
+    "retryOnTimeout": true,
+    "defaultErrorMessage": "An unexpected error occurred. Please try again.",
+    "errorMessages": {
+      "400": "Bad request. Please check your input.",
+      "401": "Authentication required. Please log in.",
+      "403": "Access denied. You don't have permission for this action.",
+      "404": "Resource not found.",
+      "408": "Request timeout. Please try again.",
+      "429": "Too many requests. Please wait and try again.",
+      "500": "Internal server error. Please try again later.",
+      "502": "Service unavailable. Please try again later.",
+      "503": "Service temporarily unavailable. Please try again later.",
+      "504": "Request timeout. Please try again later."
+    }
+  },
+  "features": {
+    "enableDevtools": true,
+    "enableOfflineSupport": false,
+    "enableRequestDeduplication": true,
+    "enableOptimisticUpdates": true
+  }
+} 

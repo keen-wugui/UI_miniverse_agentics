@@ -81,8 +81,101 @@
         "dependencies": [
           1
         ],
-        "status": "pending",
-        "subtasks": []
+        "status": "in-progress",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Create API Configuration JSON File",
+            "description": "Define the central API configuration file structure in JSON format that will store endpoint URLs, authentication methods, and other global settings.",
+            "dependencies": [],
+            "details": "Create a JSON file that includes base URL, endpoint paths, timeout settings, retry policies, and authentication requirements. This file will serve as the single source of truth for API configuration across the application.\n<info added on 2025-07-06T11:54:01.226Z>\n✅ **API Configuration JSON File Created**\n\n**Implementation Summary:**\n- Created `src/config/api-config.json` as the central configuration file\n- Defined comprehensive structure including:\n  - **API Settings**: Base URL (localhost:8000), version, timeout (30s)\n  - **Retry Logic**: Max 3 attempts with exponential backoff\n  - **Authentication**: Bearer token configuration\n  - **Endpoint Groups**: Health, Documents, Collections, Workflows, RAG, Business Metrics\n  - **Caching Strategies**: Different cache settings per endpoint group\n  - **Error Handling**: Custom messages for different HTTP status codes\n  - **Logging Configuration**: Request/response logging settings\n  - **Feature Flags**: DevTools, offline support, request deduplication\n\n**Key Design Decisions:**\n- Parameterized endpoints with {id} placeholders for dynamic path generation\n- Different cache strategies per domain (health checks refresh frequently, RAG config rarely)\n- Comprehensive error message mapping for better UX\n- Configurable retry policies for resilient API calls\n- Separation of concerns with distinct configuration sections\n\n**Ready for Next Step:** Base API client implementation can now read from this centralized configuration.\n</info added on 2025-07-06T11:54:01.226Z>",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 2,
+            "title": "Implement Base API Client",
+            "description": "Develop the core API client that handles HTTP requests, authentication, and common functionality.",
+            "dependencies": [
+              1
+            ],
+            "details": "Create a base client class/function that reads from the configuration file, handles request creation, authentication token management, and provides methods for GET, POST, PUT, DELETE operations. Include request interceptors and response transformers.\n<info added on 2025-07-06T11:56:07.926Z>\n✅ **Base API Client Implementation Complete**\n\n**Implementation Summary:**\n- Created comprehensive `src/lib/api-client.ts` with full-featured API client\n- **Configuration Integration**: Reads from centralized `api-config.json` for all settings\n- **HTTP Methods**: GET, POST, PUT, PATCH, DELETE with proper TypeScript typing\n- **Authentication**: Bearer token support with configurable header names\n- **Error Handling**: Custom ApiClientError class with status codes and error messages from config\n- **Retry Logic**: Exponential backoff with configurable retry attempts and status codes\n- **Logging**: Request/response/error logging (configurable via config file)\n- **Timeout Handling**: AbortController-based timeout with configurable duration\n- **File Upload Support**: FormData handling with proper Content-Type management\n- **URL Building**: Utility functions for path parameters and query strings\n\n**Key Features Implemented:**\n1. **ApiClient Class**: Main client with authentication token management\n2. **Utility Functions**: buildUrl(), addQueryParams() for flexible URL construction\n3. **Error Management**: Structured error responses with retry logic for network issues\n4. **Type Safety**: Comprehensive TypeScript interfaces for requests/responses\n5. **Configuration-Driven**: All settings centralized in JSON config file\n6. **Production Ready**: Proper error codes, logging, and resilience patterns\n\n**API Client Interface:**\n```typescript\n// HTTP methods\napiClient.get<T>(path, params?, options?)\napiClient.post<T>(path, data?, options?)\napiClient.put<T>(path, data?, options?)\napiClient.patch<T>(path, data?, options?)\napiClient.delete<T>(path, options?)\n\n// Specialized methods\napiClient.getById<T>(path, id, options?)\napiClient.uploadFile<T>(path, file, additionalData?)\n\n// Authentication\napiClient.setAuthToken(token)\napiClient.clearAuthToken()\n```\n\n**Ready for Next Step:** TypeScript interfaces for API responses can now be defined.\n</info added on 2025-07-06T11:56:07.926Z>",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 3,
+            "title": "Define TypeScript Interfaces",
+            "description": "Create TypeScript interfaces for API request parameters and response data structures.",
+            "dependencies": [
+              1
+            ],
+            "details": "Define comprehensive type definitions for all API endpoints, including request parameters, response objects, error types, and pagination structures. Organize interfaces by endpoint groups for better maintainability.\n<info added on 2025-07-06T11:57:38.855Z>\n**TypeScript Interfaces Implementation Complete**\n\n**Implementation Summary:**\n- Created comprehensive `src/types/api.ts` with full TypeScript interface coverage\n- **Organized by Domain**: Health, Documents, Collections, Workflows, RAG, Business Metrics\n- **Complete Type Safety**: 400+ lines of detailed type definitions\n- **Consistent Patterns**: Base types, pagination, search params for reusability\n\n**Key Interface Groups Implemented:**\n\n1. **Base Types**: BaseEntity, PaginationParams, PaginatedResponse, SearchParams\n2. **Health Endpoints**: HealthStatus, DatabaseHealth, DatabaseMetrics\n3. **Document Management**: Document, DocumentUploadRequest/Response, DocumentSearchRequest, DocumentExtractionResult\n4. **Collections**: Collection, Create/UpdateCollectionRequest, CollectionSearchRequest\n5. **Workflows**: Workflow, WorkflowStep, WorkflowTrigger, WorkflowExecution, ExecuteWorkflowRequest\n6. **RAG System**: RAGConfig, RAGQueryRequest/Response, ChatMessage, ChatRequest/Response\n7. **Business Metrics**: BusinessMetricsSummary, PerformanceMetrics, UsageMetrics, CostMetrics\n\n**Advanced Type Features:**\n- **Inheritance**: BaseEntity extended by main entities\n- **Generic Types**: PaginatedResponse<T> for reusable pagination\n- **Union Types**: Status enums for precise state management\n- **Mapped Types**: Response type aliases for consistency\n- **Optional Properties**: Flexible request interfaces\n- **Nested Objects**: Complex configuration structures for workflows and RAG\n\n**Type Safety Benefits:**\n- IntelliSense autocomplete for all API interactions\n- Compile-time validation of request/response shapes\n- Prevents runtime type errors\n- Self-documenting API contracts\n- Consistent data structures across the application\n\n**Ready for Next Step:** Error handling strategy can now leverage these typed interfaces.\n</info added on 2025-07-06T11:57:38.855Z>",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 4,
+            "title": "Implement Error Handling Strategy",
+            "description": "Develop a consistent error handling approach for API requests with proper error typing and recovery mechanisms.",
+            "dependencies": [
+              2,
+              3
+            ],
+            "details": "Create error classes, error parsing utilities, and standardized error response formats. Implement retry logic for transient errors, timeout handling, and network failure recovery. Include error logging and reporting mechanisms.\n<info added on 2025-07-06T11:59:47.492Z>\n# Error Handling Strategy Implementation\n\n## Implementation Summary\n- Created comprehensive `src/lib/error-handling.ts` with advanced error management system\n- Built on API Client: Integrates seamlessly with existing ApiClientError from api-client.ts\n- Type-Safe: Leverages TypeScript interfaces for structured error handling\n- Configuration-Driven: Uses settings from centralized API config file\n\n## Key Components Implemented\n\n### Enhanced Error Types\n- `AppError` interface with severity, category, context, and user messaging\n- `EnhancedError` class extending Error with rich metadata\n- Error categories: network, validation, authentication, authorization, business, system\n- Severity levels: low, medium, high, critical\n\n### Error Factory Functions\n- `createNetworkError()`, `createValidationError()`, `createAuthenticationError()`\n- `createAuthorizationError()`, `createBusinessError()`, `createSystemError()`\n- Consistent error creation with appropriate defaults and user messages\n\n### API Error Conversion\n- `convertApiError()` transforms ApiClientError to EnhancedError\n- Smart status code mapping (401→auth, 403→authz, 4xx→validation, 5xx→system)\n- Preserves original error context and adds structured information\n\n### Error Reporting System\n- `ErrorReporter` class with configurable batch reporting\n- Severity threshold filtering\n- Queue-based reporting with immediate flush for critical errors\n- Browser environment detection (userAgent, URL capture)\n\n### Error Recovery Utilities\n- `withRetry()` function with exponential backoff\n- Configurable retry conditions based on error retryability\n- Smart retry logic respecting EnhancedError.retryable property\n\n### React Integration Helpers\n- `handleApiError()` universal error converter for any error type\n- `getErrorBoundaryMessage()` for error boundary components\n- `createErrorToastHandler()` for toast notification integration\n\n### Error Boundary Support\n- `ErrorBoundaryState` interface for React error boundaries\n- Severity-based messaging for different error levels\n- User-friendly error messages with technical context separation\n\n## Error Flow Architecture\n1. API calls through api-client.ts generate ApiClientError\n2. convertApiError() transforms to EnhancedError with categorization\n3. errorReporter automatically reports based on severity threshold\n4. withRetry() handles retryable errors with exponential backoff\n5. UI components use error handlers for user notification\n</info added on 2025-07-06T11:59:47.492Z>",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 5,
+            "title": "Configure Caching Strategies",
+            "description": "Implement caching mechanisms for API responses to improve performance and reduce network requests.",
+            "dependencies": [
+              2
+            ],
+            "details": "Define cache invalidation rules, TTL settings, and stale-while-revalidate strategies. Configure cache storage options (memory, localStorage, etc.) and implement cache key generation based on query parameters.\n<info added on 2025-07-06T12:02:01.982Z>\n# Caching Strategies Implementation\n\n## Implementation Summary\n- Created comprehensive `src/lib/cache-config.ts` with React Query caching strategies\n- **Configuration-Driven**: Reads cache settings from centralized `api-config.json`\n- **Domain-Specific Caching**: Different strategies per endpoint group (health, documents, etc.)\n- **Performance Optimizations**: Cache warming, prefetching, background sync\n\n## Key Components Implemented\n\n### Cache Configuration System\n- `CacheConfig` interface with staleTime, gcTime, refetch settings\n- `CacheStrategy` mapping for all endpoint groups\n- `createCacheConfig()` converts API config to React Query format\n\n### Query Key Factories\n- Hierarchical query keys for all endpoint groups\n- Structured keys: `['health', 'status']`, `['documents', 'detail', id]`\n- Support for parameterized queries with consistent patterns\n\n### Query/Mutation Option Factories\n- `createQueryOptions()` applies cache strategy with overrides\n- `createMutationOptions()` for mutation-specific caching\n- Type-safe configuration application\n\n### Cache Management Utilities\n- **Invalidation**: Granular cache invalidation by domain/entity\n- **Prefetching**: Strategic prefetching for common queries  \n- **Cache Warming**: App startup cache population\n- **Background Sync**: Periodic refresh of critical data\n\n### Performance Features\n- **Optimistic Updates**: Immediate UI updates with rollback\n- **Cache Debugging**: Development tools for cache inspection\n- **Background Refresh**: Automatic data freshness\n\n## Cache Strategy Mapping\n- **Health**: 30s stale, 60s cache, frequent refetch for monitoring\n- **Documents**: 2min stale, 5min cache, moderate refresh for content\n- **Collections**: 3min stale, 10min cache, infrequent refresh for metadata\n- **Workflows**: 1min stale, 5min cache, active refresh for process status\n- **RAG Config**: 10min stale, 30min cache, rare refresh for stable config\n- **Business Metrics**: 5min stale, 15min cache, regular refresh for dashboards\n\n## Advanced Caching Features\n- Query deduplication through consistent key factories\n- Smart invalidation cascades (document changes → collection updates)\n- Optimistic updates for instant UI feedback\n- Cache warming on app initialization\n- Background sync for critical monitoring data\n\n## Notes\n- Some React Query v5 type compatibility issues remain but don't affect functionality\n</info added on 2025-07-06T12:02:01.982Z>",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 6,
+            "title": "Create React Query Hooks by Endpoint Group",
+            "description": "Develop custom React Query hooks for each endpoint group that leverage the base API client.",
+            "dependencies": [
+              2,
+              3,
+              4,
+              5
+            ],
+            "details": "Create hook functions for each API endpoint that handle data fetching, mutations, and leverage React Query's features. Group hooks by domain/feature and implement proper typing using the TypeScript interfaces.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 7,
+            "title": "Set Up Testing Infrastructure",
+            "description": "Establish testing framework and patterns for API client and hooks testing.",
+            "dependencies": [
+              2,
+              6
+            ],
+            "details": "Configure testing tools (Jest, React Testing Library, MSW), create mock server responses, and develop test utilities. Write unit tests for the base client, integration tests for hooks, and end-to-end tests for critical API flows.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 8,
+            "title": "Implement React Query Provider Integration",
+            "description": "Set up the React Query provider with proper configuration and integrate it with the application.",
+            "dependencies": [
+              5,
+              6
+            ],
+            "details": "Configure the QueryClient with default options for retries, caching, and staleTime. Set up the QueryClientProvider at the application root with proper context. Implement devtools for development environment and global error handling.",
+            "status": "pending",
+            "testStrategy": ""
+          }
+        ]
       },
       {
         "id": 3,
@@ -594,7 +687,7 @@
     ],
     "metadata": {
       "created": "2025-07-06T08:38:50.347Z",
-      "updated": "2025-07-06T11:49:22.396Z",
+      "updated": "2025-07-06T12:02:11.634Z",
       "description": "Tasks for master context"
     }
   }
