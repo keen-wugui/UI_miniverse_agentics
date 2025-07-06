@@ -160,7 +160,7 @@
               6
             ],
             "details": "Configure testing tools (Jest, React Testing Library, MSW), create mock server responses, and develop test utilities. Write unit tests for the base client, integration tests for hooks, and end-to-end tests for critical API flows.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": ""
           },
           {
@@ -687,7 +687,7 @@
     ],
     "metadata": {
       "created": "2025-07-06T08:38:50.347Z",
-      "updated": "2025-07-06T12:31:30.871Z",
+      "updated": "2025-07-06T12:46:35.312Z",
       "description": "Tasks for master context"
     }
   }
