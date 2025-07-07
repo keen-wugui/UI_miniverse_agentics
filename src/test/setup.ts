@@ -59,3 +59,5 @@ global.console = {
   // warn: vi.fn(),
   // error: vi.fn(),
 };
+
+// Add any global test setup here
