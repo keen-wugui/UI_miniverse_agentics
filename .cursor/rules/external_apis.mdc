@@ -1,0 +1,42 @@
+---
+description: Read this when working with the rest api
+alwaysApply: false
+---
+When implementing features or making changes that require modifications to the Business API (external REST API in separate codebase):
+
+ALWAYS document API change requests in `docs/api-change-requests.md` using this format:
+
+```
+## Feature Name
+**Status:** Requested
+**Priority:** Medium
+**Endpoint:** GET/POST/PUT/DELETE /api/endpoint
+
+### Description
+Brief description of what needs to change and why.
+
+### Required Changes
+- Specific field additions/modifications
+- New endpoints needed
+- Schema changes
+
+### Expected Request/Response
+```json
+// Example request/response format
+```
+
+### Notes
+Any additional context or dependencies
+```
+
+Add TODO comments in code where Business API changes are needed:
+```javascript
+// TODO: Business API - Requires new endpoint POST /api/users/preferences
+// See docs/api-change-requests.md entry from [DATE]
+```
+
+Check existing documentation before assuming new API endpoints are needed.
+
+Maintain these files:
+- `docs/api-change-requests.md` - Primary change request documentation
+- `docs/business-api-endpoints.md` - Current API documentation (if available)
