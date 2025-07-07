@@ -13,9 +13,11 @@ import {
 // Create wrapper component for tests
 const createTestWrapper = () => {
   const queryClient = createTestQueryClient();
-  return ({ children }: { children: React.ReactNode }) => (
+  const TestWrapper = ({ children }: { children: React.ReactNode }) => (
     <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
   );
+  TestWrapper.displayName = "TestWrapper";
+  return TestWrapper;
 };
 
 describe("useHealth hooks", () => {

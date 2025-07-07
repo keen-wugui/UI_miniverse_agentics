@@ -162,10 +162,7 @@ export const useCreateCollection = () => {
       cacheInvalidation.invalidateCollectionLists(queryClient);
 
       // Set the new collection in cache
-      queryClient.setQueryData(
-        queryKeys.collections.detail(data.collection.id),
-        data
-      );
+      queryClient.setQueryData(queryKeys.collections.detail(data.id), data);
     },
   });
 };

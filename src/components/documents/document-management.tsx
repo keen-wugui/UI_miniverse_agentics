@@ -338,7 +338,7 @@ export function DocumentManagement({
       {/* Filter panel */}
       {showFilters && (
         <DocumentFilters
-          initialState={filters}
+          initialFilters={filters}
           onFiltersChange={handleFiltersChange}
         />
       )}
@@ -364,11 +364,10 @@ export function DocumentManagement({
                 <DocumentCard
                   key={doc.id}
                   document={doc}
-                  layout="list"
+                  view="list"
                   isSelected={selectedDocuments.has(doc.id)}
                   onSelect={handleDocumentSelect}
                   onView={onDocumentView}
-                  onEdit={onDocumentEdit}
                   onDelete={handleDeleteDocument}
                   onDownload={handleDownload}
                   onUpdate={refetch}
@@ -381,11 +380,10 @@ export function DocumentManagement({
                 <DocumentCard
                   key={doc.id}
                   document={doc}
-                  layout="grid"
+                  view="grid"
                   isSelected={selectedDocuments.has(doc.id)}
                   onSelect={handleDocumentSelect}
                   onView={onDocumentView}
-                  onEdit={onDocumentEdit}
                   onDelete={handleDeleteDocument}
                   onDownload={handleDownload}
                   onUpdate={refetch}
@@ -403,7 +401,7 @@ export function DocumentManagement({
             variant="outline"
             size="sm"
             onClick={() => handlePageChange(paginationInfo.page - 1)}
-            disabled={!paginationInfo.hasPrevPage}
+            disabled={!paginationInfo.hasPrev}
           >
             Previous
           </Button>
@@ -414,7 +412,7 @@ export function DocumentManagement({
             variant="outline"
             size="sm"
             onClick={() => handlePageChange(paginationInfo.page + 1)}
-            disabled={!paginationInfo.hasNextPage}
+            disabled={!paginationInfo.hasNext}
           >
             Next
           </Button>

@@ -246,8 +246,8 @@ export function DocumentSearch({
       {query && (
         <div className="text-xs text-gray-500">
           Searching {options.searchFields.length} field
-          {options.searchFields.length !== 1 ? "s" : ""} for "{query}" using{" "}
-          {options.searchMode} matching
+          {options.searchFields.length !== 1 ? "s" : ""} for &quot;{query}&quot;
+          using {options.searchMode} matching
           {options.caseSensitive && " (case sensitive)"}
         </div>
       )}

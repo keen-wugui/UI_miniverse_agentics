@@ -30,11 +30,6 @@ export default function DocumentsPage() {
     router.push(`/documents/${id}/edit`);
   };
 
-  const handleDocumentUpload = () => {
-    // TODO: Implement upload modal or navigation
-    router.push("/documents/upload");
-  };
-
   return (
     <div className="space-y-6 p-6">
       {/* Header */}
@@ -107,7 +102,6 @@ export default function DocumentsPage() {
       <DocumentManagement
         onDocumentView={handleDocumentView}
         onDocumentEdit={handleDocumentEdit}
-        onDocumentUpload={handleDocumentUpload}
       />
     </div>
   );
