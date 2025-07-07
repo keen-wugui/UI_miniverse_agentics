@@ -1,10 +1,16 @@
-'use client'
+"use client";
 
-import { useEffect } from 'react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { useNavigation } from '@/contexts/navigation-context'
+import { useEffect, useState } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { useNavigation } from "@/contexts/navigation-context";
 import {
   Activity,
   FileText,
@@ -16,22 +22,75 @@ import {
   CheckCircle,
   Clock,
   AlertTriangle,
-} from 'lucide-react'
+  Loader2,
+} from "lucide-react";
+import { useHealthStatus } from "@/hooks/api/useHealth";
+import { useDocuments } from "@/hooks/api/useDocuments";
+import { useCollections } from "@/hooks/api/useCollections";
+import { useWorkflows } from "@/hooks/api/useWorkflows";
+import { useRouter } from "next/navigation";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+} from "@/components/ui/sheet";
+import { DocumentUpload } from "@/components/documents/document-upload";
 
 export default function Dashboard() {
-  const { setBreadcrumbs } = useNavigation()
+  const { setBreadcrumbs } = useNavigation();
+  const router = useRouter();
+  const [isUploadSheetOpen, setIsUploadSheetOpen] = useState(false);
+  const { data: healthData, isLoading: isHealthLoading } = useHealthStatus();
+  const {
+    data: documentsData,
+    isLoading: isDocumentsLoading,
+    refetch: refetchDocuments,
+  } = useDocuments();
+  const { data: collectionsData, isLoading: isCollectionsLoading } =
+    useCollections();
+  const { data: workflowsData, isLoading: isWorkflowsLoading } = useWorkflows();
 
   useEffect(() => {
-    setBreadcrumbs([{ label: 'Dashboard' }])
-  }, [setBreadcrumbs])
+    setBreadcrumbs([{ label: "Dashboard" }]);
+  }, [setBreadcrumbs]);
+
+  const handleUploadSuccess = () => {
+    setIsUploadSheetOpen(false);
+    refetchDocuments();
+  };
+
+  const renderHealthStatus = () => {
+    if (isHealthLoading) {
+      return <Loader2 className="h-4 w-4 animate-spin" />;
+    }
+    if (healthData?.status === "healthy") {
+      return (
+        <div className="flex items-center space-x-2">
+          <CheckCircle className="h-4 w-4 text-green-600" />
+          <span className="text-2xl font-bold text-green-600">Healthy</span>
+        </div>
+      );
+    }
+    return (
+      <div className="flex items-center space-x-2">
+        <AlertTriangle className="h-4 w-4 text-red-600" />
+        <span className="text-2xl font-bold text-red-600">Unhealthy</span>
+      </div>
+    );
+  };
 
   return (
     <div className="space-y-6 p-6">
       {/* Welcome Section */}
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Welcome to UI Miniverse Agentics</h1>
+        <h1 className="text-3xl font-bold tracking-tight">
+          Welcome to UI Miniverse Agentics
+        </h1>
         <p className="text-muted-foreground">
-          Your intelligent dashboard for managing agentic workflows and RAG systems.
+          Your intelligent dashboard for managing agentic workflows and RAG
+          systems.
         </p>
       </div>
 
@@ -43,11 +102,10 @@ export default function Dashboard() {
             <Activity className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="flex items-center space-x-2">
-              <CheckCircle className="h-4 w-4 text-green-600" />
-              <span className="text-2xl font-bold text-green-600">Healthy</span>
-            </div>
-            <p className="text-xs text-muted-foreground">All systems operational</p>
+            {renderHealthStatus()}
+            <p className="text-xs text-muted-foreground">
+              All systems operational
+            </p>
           </CardContent>
         </Card>
 
@@ -57,8 +115,16 @@ export default function Dashboard() {
             <FileText className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">1,234</div>
-            <p className="text-xs text-muted-foreground">+12% from last month</p>
+            {isDocumentsLoading ? (
+              <Loader2 className="h-6 w-6 animate-spin" />
+            ) : (
+              <div className="text-2xl font-bold">
+                {documentsData?.pagination.total ?? 0}
+              </div>
+            )}
+            <p className="text-xs text-muted-foreground">
+              Total documents in the system
+            </p>
           </CardContent>
         </Card>
 
@@ -68,19 +134,37 @@ export default function Dashboard() {
             <FolderOpen className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">28</div>
-            <p className="text-xs text-muted-foreground">+2 new this week</p>
+            {isCollectionsLoading ? (
+              <Loader2 className="h-6 w-6 animate-spin" />
+            ) : (
+              <div className="text-2xl font-bold">
+                {collectionsData?.pagination.total ?? 0}
+              </div>
+            )}
+            <p className="text-xs text-muted-foreground">
+              Total collections created
+            </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Workflows</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Active Workflows
+            </CardTitle>
             <Workflow className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">7</div>
-            <p className="text-xs text-muted-foreground">3 running now</p>
+            {isWorkflowsLoading ? (
+              <Loader2 className="h-6 w-6 animate-spin" />
+            ) : (
+              <div className="text-2xl font-bold">
+                {workflowsData?.pagination.total ?? 0}
+              </div>
+            )}
+            <p className="text-xs text-muted-foreground">
+              Total workflows available
+            </p>
           </CardContent>
         </Card>
       </div>
@@ -90,27 +174,41 @@ export default function Dashboard() {
         <Card>
           <CardHeader>
             <CardTitle>Quick Actions</CardTitle>
-            <CardDescription>
-              Common tasks to get you started
-            </CardDescription>
+            <CardDescription>Common tasks to get you started</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
-            <Button className="w-full justify-start" variant="outline">
+            <Button
+              className="w-full justify-start"
+              variant="outline"
+              onClick={() => setIsUploadSheetOpen(true)}
+            >
               <FileText className="mr-2 h-4 w-4" />
               Upload Documents
               <ArrowRight className="ml-auto h-4 w-4" />
             </Button>
-            <Button className="w-full justify-start" variant="outline">
+            <Button
+              className="w-full justify-start"
+              variant="outline"
+              onClick={() => router.push("/collections")}
+            >
               <FolderOpen className="mr-2 h-4 w-4" />
               Create Collection
               <ArrowRight className="ml-auto h-4 w-4" />
             </Button>
-            <Button className="w-full justify-start" variant="outline">
+            <Button
+              className="w-full justify-start"
+              variant="outline"
+              onClick={() => router.push("/rag/configuration")}
+            >
               <Settings2 className="mr-2 h-4 w-4" />
               Configure RAG
               <ArrowRight className="ml-auto h-4 w-4" />
             </Button>
-            <Button className="w-full justify-start" variant="outline">
+            <Button
+              className="w-full justify-start"
+              variant="outline"
+              onClick={() => router.push("/workflows")}
+            >
               <Workflow className="mr-2 h-4 w-4" />
               Run Workflow
               <ArrowRight className="ml-auto h-4 w-4" />
@@ -121,23 +219,25 @@ export default function Dashboard() {
         <Card>
           <CardHeader>
             <CardTitle>Recent Activity</CardTitle>
-            <CardDescription>
-              Latest system events and updates
-            </CardDescription>
+            <CardDescription>Latest system events and updates</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               <div className="flex items-start space-x-3">
                 <CheckCircle className="mt-0.5 h-4 w-4 text-green-600" />
                 <div className="space-y-1">
-                  <p className="text-sm font-medium">Document processing completed</p>
+                  <p className="text-sm font-medium">
+                    Document processing completed
+                  </p>
                   <p className="text-xs text-muted-foreground">2 minutes ago</p>
                 </div>
               </div>
               <div className="flex items-start space-x-3">
                 <Clock className="mt-0.5 h-4 w-4 text-blue-600" />
                 <div className="space-y-1">
-                  <p className="text-sm font-medium">Workflow execution started</p>
+                  <p className="text-sm font-medium">
+                    Workflow execution started
+                  </p>
                   <p className="text-xs text-muted-foreground">5 minutes ago</p>
                 </div>
               </div>
@@ -145,7 +245,9 @@ export default function Dashboard() {
                 <AlertTriangle className="mt-0.5 h-4 w-4 text-yellow-600" />
                 <div className="space-y-1">
                   <p className="text-sm font-medium">Configuration warning</p>
-                  <p className="text-xs text-muted-foreground">10 minutes ago</p>
+                  <p className="text-xs text-muted-foreground">
+                    10 minutes ago
+                  </p>
                 </div>
               </div>
             </div>
@@ -169,7 +271,8 @@ export default function Dashboard() {
                 <h3 className="font-medium">Analytics</h3>
               </div>
               <p className="text-sm text-muted-foreground">
-                Monitor system performance and business metrics with interactive visualizations.
+                Monitor system performance and business metrics with interactive
+                visualizations.
               </p>
             </div>
             <div className="space-y-2">
@@ -178,7 +281,8 @@ export default function Dashboard() {
                 <h3 className="font-medium">Configuration</h3>
               </div>
               <p className="text-sm text-muted-foreground">
-                Manage RAG configurations, test settings, and track version history.
+                Manage RAG configurations, test settings, and track version
+                history.
               </p>
             </div>
             <div className="space-y-2">
@@ -187,12 +291,26 @@ export default function Dashboard() {
                 <h3 className="font-medium">Workflows</h3>
               </div>
               <p className="text-sm text-muted-foreground">
-                Create, monitor, and optimize automated workflows for document processing.
+                Create, monitor, and optimize automated workflows for document
+                processing.
               </p>
             </div>
           </div>
         </CardContent>
       </Card>
+      <Sheet open={isUploadSheetOpen} onOpenChange={setIsUploadSheetOpen}>
+        <SheetContent className="w-[500px] sm:w-[540px]">
+          <SheetHeader>
+            <SheetTitle>Upload New Documents</SheetTitle>
+            <SheetDescription>
+              Select one or more files to upload.
+            </SheetDescription>
+          </SheetHeader>
+          <div className="mt-8">
+            <DocumentUpload onUploadSuccess={handleUploadSuccess} />
+          </div>
+        </SheetContent>
+      </Sheet>
     </div>
-  )
-} 
+  );
+}

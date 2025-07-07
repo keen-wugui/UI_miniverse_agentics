@@ -13,6 +13,7 @@ import {
   CheckCircle,
   AlertCircle,
   XCircle,
+  Save,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -23,6 +24,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useUpdateDocument } from "@/hooks/api/useDocuments";
 import type { Document } from "@/types/api";
 
 interface DocumentCardProps {
@@ -31,9 +33,9 @@ interface DocumentCardProps {
   isSelected?: boolean;
   onSelect?: (id: string, selected: boolean) => void;
   onView?: (id: string) => void;
-  onEdit?: (id: string) => void;
   onDelete?: (id: string) => void;
   onDownload?: (id: string) => void;
+  onUpdate?: () => void;
 }
 
 const getStatusIcon = (status: Document["status"]) => {
@@ -80,11 +82,40 @@ export function DocumentCard({
   isSelected = false,
   onSelect,
   onView,
-  onEdit,
   onDelete,
   onDownload,
+  onUpdate,
 }: DocumentCardProps) {
-  const [imageError, setImageError] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [name, setName] = useState(document.name);
+  const [tags, setTags] = useState(document.tags.join(", "));
+  const updateDocumentMutation = useUpdateDocument();
+
+  const handleSave = async () => {
+    try {
+      await updateDocumentMutation.mutateAsync({
+        id: document.id,
+        updates: {
+          name,
+          tags: tags
+            .split(",")
+            .map((tag) => tag.trim())
+            .filter(Boolean),
+        },
+      });
+      setIsEditing(false);
+      onUpdate?.();
+    } catch (error) {
+      console.error("Failed to update document:", error);
+      // Here you would show a toast notification
+    }
+  };
+
+  const handleCancel = () => {
+    setName(document.name);
+    setTags(document.tags.join(", "));
+    setIsEditing(false);
+  };
 
   const handleSelect = () => {
     onSelect?.(document.id, !isSelected);
@@ -134,70 +165,114 @@ export function DocumentCard({
 
         {/* Document Info */}
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2">
-            <h3 className="text-sm font-medium text-gray-900 truncate">
-              {document.name}
-            </h3>
-            {getStatusIcon(document.status)}
-          </div>
+          {isEditing ? (
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="text-sm font-medium text-gray-900 truncate w-full border rounded px-2 py-1"
+            />
+          ) : (
+            <div className="flex items-center gap-2">
+              <h3 className="text-sm font-medium text-gray-900 truncate">
+                {document.name}
+              </h3>
+              {getStatusIcon(document.status)}
+            </div>
+          )}
           <div className="flex items-center gap-4 mt-1 text-xs text-gray-500">
-            <span>{document.filename}</span>
-            <span>{formatFileSize(document.size)}</span>
-            <span>{format(new Date(document.createdAt), "MMM d, yyyy")}</span>
+            <span className="truncate">{document.filename}</span>
+            <span className="hidden sm:inline">
+              {formatFileSize(document.size)}
+            </span>
+            <span className="hidden md:inline">
+              {format(new Date(document.createdAt), "MMM d, yyyy")}
+            </span>
           </div>
         </div>
 
         {/* Tags */}
-        <div className="flex-shrink-0 flex gap-1">
-          {document.tags.slice(0, 2).map((tag) => (
-            <Badge key={tag} variant="outline" className="text-xs">
-              {tag}
-            </Badge>
-          ))}
-          {document.tags.length > 2 && (
-            <Badge variant="outline" className="text-xs">
-              +{document.tags.length - 2}
-            </Badge>
+        <div className="hidden lg:flex flex-shrink-0 gap-1 w-48">
+          {isEditing ? (
+            <input
+              type="text"
+              value={tags}
+              onChange={(e) => setTags(e.target.value)}
+              placeholder="tag1, tag2, ..."
+              className="text-xs w-full border rounded px-2 py-1"
+            />
+          ) : (
+            <>
+              {document.tags.slice(0, 2).map((tag) => (
+                <Badge key={tag} variant="outline" className="text-xs">
+                  {tag}
+                </Badge>
+              ))}
+              {document.tags.length > 2 && (
+                <Badge variant="outline" className="text-xs">
+                  +{document.tags.length - 2}
+                </Badge>
+              )}
+            </>
           )}
         </div>
 
         {/* Status */}
         <div className="flex-shrink-0">
-          <Badge variant={getStatusBadgeVariant(document.status)}>
+          <Badge
+            variant={getStatusBadgeVariant(document.status)}
+            className="w-24 justify-center"
+          >
             {document.status}
           </Badge>
         </div>
 
         {/* Actions */}
         <div className="flex-shrink-0">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm">
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => onView?.(document.id)}>
-                <Eye className="mr-2 h-4 w-4" />
-                View
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onDownload?.(document.id)}>
-                <Download className="mr-2 h-4 w-4" />
-                Download
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onEdit?.(document.id)}>
-                <Edit className="mr-2 h-4 w-4" />
-                Edit
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => onDelete?.(document.id)}
-                className="text-red-600"
+          {isEditing ? (
+            <div className="flex gap-2">
+              <Button
+                variant="default"
+                size="sm"
+                onClick={handleSave}
+                disabled={updateDocumentMutation.isPending}
               >
-                <Trash2 className="mr-2 h-4 w-4" />
-                Delete
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+                <Save className="h-4 w-4" />
+              </Button>
+              <Button variant="ghost" size="sm" onClick={handleCancel}>
+                <XCircle className="h-4 w-4" />
+              </Button>
+            </div>
+          ) : (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm">
+                  <MoreHorizontal className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => onView?.(document.id)}>
+                  <Eye className="mr-2 h-4 w-4" />
+                  View
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => onDownload?.(document.id)}>
+                  <Download className="mr-2 h-4 w-4" />
+                  Download
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setIsEditing(true)}>
+                  <Edit className="mr-2 h-4 w-4" />
+                  Edit
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => onDelete?.(document.id)}
+                  className="text-red-600"
+                >
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Delete
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
         </div>
       </div>
     );
@@ -211,7 +286,7 @@ export function DocumentCard({
       }`}
     >
       <CardContent className="p-4">
-        {/* Selection Checkbox */}
+        {/* Top section with checkbox and actions */}
         <div className="flex justify-between items-start mb-3">
           <input
             type="checkbox"
@@ -219,80 +294,92 @@ export function DocumentCard({
             onChange={handleSelect}
             className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
           />
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm">
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => onView?.(document.id)}>
-                <Eye className="mr-2 h-4 w-4" />
-                View
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onDownload?.(document.id)}>
-                <Download className="mr-2 h-4 w-4" />
-                Download
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onEdit?.(document.id)}>
-                <Edit className="mr-2 h-4 w-4" />
-                Edit
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => onDelete?.(document.id)}
-                className="text-red-600"
+          {isEditing ? (
+            <div className="flex gap-2">
+              <Button
+                variant="default"
+                size="sm"
+                onClick={handleSave}
+                disabled={updateDocumentMutation.isPending}
               >
-                <Trash2 className="mr-2 h-4 w-4" />
-                Delete
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+                <Save className="h-4 w-4" />
+              </Button>
+              <Button variant="ghost" size="sm" onClick={handleCancel}>
+                <XCircle className="h-4 w-4" />
+              </Button>
+            </div>
+          ) : (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm">
+                  <MoreHorizontal className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => onView?.(document.id)}>
+                  <Eye className="mr-2 h-4 w-4" />
+                  View
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => onDownload?.(document.id)}>
+                  <Download className="mr-2 h-4 w-4" />
+                  Download
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setIsEditing(true)}>
+                  <Edit className="mr-2 h-4 w-4" />
+                  Edit
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => onDelete?.(document.id)}
+                  className="text-red-600"
+                >
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Delete
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
         </div>
 
-        {/* File Preview */}
-        <div className="mb-4">
-          <div className="h-32 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden">
-            <span className="text-4xl">{getFileIcon()}</span>
-          </div>
+        {/* Thumbnail or Icon */}
+        <div
+          className="relative w-full h-32 bg-gray-100 rounded-md mb-3 flex items-center justify-center overflow-hidden"
+          onClick={() => !isEditing && onView?.(document.id)}
+        >
+          <span className="text-4xl">{getFileIcon()}</span>
         </div>
 
-        {/* Document Info */}
+        {/* Name and Tags */}
         <div className="space-y-2">
-          <div className="flex items-center gap-2">
-            <h3 className="font-medium text-sm truncate flex-1">
-              {document.name}
-            </h3>
-            {getStatusIcon(document.status)}
-          </div>
-
-          <p className="text-xs text-gray-500 truncate">{document.filename}</p>
-
-          <div className="flex justify-between items-center text-xs text-gray-500">
-            <span>{formatFileSize(document.size)}</span>
-            <span>{format(new Date(document.createdAt), "MMM d")}</span>
-          </div>
-
-          {/* Status Badge */}
-          <Badge
-            variant={getStatusBadgeVariant(document.status)}
-            className="text-xs"
-          >
-            {document.status}
-          </Badge>
-
-          {/* Tags */}
-          <div className="flex flex-wrap gap-1">
-            {document.tags.slice(0, 3).map((tag) => (
-              <Badge key={tag} variant="outline" className="text-xs">
-                {tag}
-              </Badge>
-            ))}
-            {document.tags.length > 3 && (
-              <Badge variant="outline" className="text-xs">
-                +{document.tags.length - 3}
-              </Badge>
-            )}
-          </div>
+          {isEditing ? (
+            <div className="space-y-2">
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="text-sm font-medium text-gray-900 truncate w-full border rounded px-2 py-1"
+              />
+              <input
+                type="text"
+                value={tags}
+                onChange={(e) => setTags(e.target.value)}
+                placeholder="tag1, tag2, ..."
+                className="text-xs w-full border rounded px-2 py-1"
+              />
+            </div>
+          ) : (
+            <>
+              <h3 className="text-sm font-medium text-gray-900 truncate">
+                {document.name}
+              </h3>
+              <div className="flex flex-wrap gap-1">
+                {document.tags.map((tag) => (
+                  <Badge key={tag} variant="secondary" className="text-xs">
+                    {tag}
+                  </Badge>
+                ))}
+              </div>
+            </>
+          )}
         </div>
       </CardContent>
     </Card>

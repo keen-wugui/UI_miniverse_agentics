@@ -35,6 +35,14 @@ import {
 import { DocumentCard } from "./document-card";
 import { DocumentFilters, type DocumentFilterState } from "./document-filters";
 import { DocumentSearch, type SearchOptions } from "./document-search";
+import { DocumentUpload } from "./document-upload";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+} from "@/components/ui/sheet";
 import {
   useDocuments,
   useDeleteDocument,
@@ -45,7 +53,6 @@ import type { Document, PaginationParams } from "@/types/api";
 interface DocumentManagementProps {
   onDocumentView?: (id: string) => void;
   onDocumentEdit?: (id: string) => void;
-  onDocumentUpload?: () => void;
 }
 
 type ViewMode = "list" | "grid";
@@ -55,10 +62,10 @@ type SortOrder = "asc" | "desc";
 export function DocumentManagement({
   onDocumentView,
   onDocumentEdit,
-  onDocumentUpload,
 }: DocumentManagementProps) {
   // State
   const [viewMode, setViewMode] = useState<ViewMode>("list");
+  const [isUploadSheetOpen, setIsUploadSheetOpen] = useState(false);
   const [selectedDocuments, setSelectedDocuments] = useState<Set<string>>(
     new Set()
   );
@@ -201,6 +208,11 @@ export function DocumentManagement({
     setPagination((prev) => ({ ...prev, page }));
   }, []);
 
+  const handleUploadSuccess = useCallback(() => {
+    setIsUploadSheetOpen(false);
+    refetch();
+  }, [refetch]);
+
   // Loading and error states
   if (error) {
     return (
@@ -220,9 +232,9 @@ export function DocumentManagement({
   const paginationInfo = documentsResponse?.pagination;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-4 md:p-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl font-bold tracking-tight">Documents</h2>
           <p className="text-muted-foreground">
@@ -231,13 +243,13 @@ export function DocumentManagement({
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" onClick={onDocumentUpload}>
-            <Upload className="mr-2 h-4 w-4" />
-            Upload
+          <Button variant="outline" onClick={() => setIsUploadSheetOpen(true)}>
+            <Upload className="mr-0 md:mr-2 h-4 w-4" />
+            <span className="hidden md:inline">Upload</span>
           </Button>
-          <Button onClick={onDocumentUpload}>
-            <Plus className="mr-2 h-4 w-4" />
-            Add Document
+          <Button onClick={() => setIsUploadSheetOpen(true)}>
+            <Plus className="mr-0 md:mr-2 h-4 w-4" />
+            <span className="hidden md:inline">Add Document</span>
           </Button>
         </div>
       </div>
@@ -249,70 +261,54 @@ export function DocumentManagement({
         initialOptions={searchOptions}
       />
 
-      {/* Controls */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          {/* Bulk Actions */}
-          {selectedDocuments.size > 0 && (
-            <div className="flex items-center gap-2 px-3 py-2 bg-blue-50 rounded-lg">
-              <span className="text-sm text-blue-700">
-                {selectedDocuments.size} selected
-              </span>
-              <Button size="sm" variant="outline" onClick={handleDeselectAll}>
-                Clear
-              </Button>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button size="sm" variant="outline">
-                    <MoreHorizontal className="h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent>
-                  <DropdownMenuItem onClick={handleBulkDelete}>
-                    <Trash2 className="mr-2 h-4 w-4" />
-                    Delete Selected
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <Download className="mr-2 h-4 w-4" />
-                    Download Selected
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-          )}
-
-          {/* Filters Toggle */}
+      {/* Filters and Actions */}
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div className="flex items-center gap-2 flex-wrap">
           <Button
             variant="outline"
             size="sm"
             onClick={() => setShowFilters(!showFilters)}
           >
             <Filter className="mr-2 h-4 w-4" />
-            Filters
+            <span>Filters</span>
+            {/* TODO: Add badge for active filter count */}
           </Button>
+          {selectedDocuments.size > 0 && (
+            <>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleBulkDelete}
+                disabled={bulkDeleteMutation.isPending}
+              >
+                <Trash2 className="mr-2 h-4 w-4" />
+                Delete ({selectedDocuments.size})
+              </Button>
+              {/* TODO: Business API - Implement bulk download/edit */}
+            </>
+          )}
+        </div>
 
-          {/* Sort */}
+        <div className="flex items-center gap-2 self-start md:self-center">
+          {/* Sorting controls */}
           <Select
             value={sortField}
-            onValueChange={(value: SortField) => handleSort(value)}
+            onValueChange={(value) => handleSort(value as SortField)}
           >
-            <SelectTrigger className="w-48">
-              <SelectValue />
+            <SelectTrigger className="w-full md:w-[180px]">
+              <SelectValue placeholder="Sort by..." />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="name">Name</SelectItem>
               <SelectItem value="createdAt">Date Created</SelectItem>
-              <SelectItem value="size">File Size</SelectItem>
+              <SelectItem value="name">Name</SelectItem>
+              <SelectItem value="size">Size</SelectItem>
               <SelectItem value="status">Status</SelectItem>
             </SelectContent>
           </Select>
-
           <Button
             variant="outline"
-            size="sm"
-            onClick={() =>
-              setSortOrder((prev) => (prev === "asc" ? "desc" : "asc"))
-            }
+            size="icon"
+            onClick={() => handleSort(sortField)}
           >
             {sortOrder === "asc" ? (
               <SortAsc className="h-4 w-4" />
@@ -320,140 +316,125 @@ export function DocumentManagement({
               <SortDesc className="h-4 w-4" />
             )}
           </Button>
-        </div>
-
-        {/* View Toggle */}
-        <div className="flex items-center gap-1 border rounded-lg p-1">
+          <div className="h-8 border-l" />
+          {/* View mode toggle */}
           <Button
             variant={viewMode === "list" ? "secondary" : "ghost"}
-            size="sm"
+            size="icon"
             onClick={() => setViewMode("list")}
           >
-            <List className="h-4 w-4" />
+            <List className="h-5 w-5" />
           </Button>
           <Button
             variant={viewMode === "grid" ? "secondary" : "ghost"}
-            size="sm"
+            size="icon"
             onClick={() => setViewMode("grid")}
           >
-            <Grid className="h-4 w-4" />
+            <Grid className="h-5 w-5" />
           </Button>
         </div>
       </div>
 
-      <div className="flex gap-6">
-        {/* Filters Sidebar */}
-        {showFilters && (
-          <div className="w-80 flex-shrink-0">
-            <DocumentFilters
-              onFiltersChange={handleFiltersChange}
-              initialFilters={filters}
-            />
-          </div>
-        )}
+      {/* Filter panel */}
+      {showFilters && (
+        <DocumentFilters
+          initialState={filters}
+          onFiltersChange={handleFiltersChange}
+        />
+      )}
 
-        {/* Document List/Grid */}
-        <div className="flex-1">
-          {isLoading ? (
-            <div className="flex items-center justify-center h-64">
-              <RefreshCw className="h-8 w-8 animate-spin" />
-            </div>
-          ) : documents.length === 0 ? (
-            <div className="text-center py-12">
-              <p className="text-gray-500 mb-4">No documents found</p>
-              <Button onClick={onDocumentUpload}>
-                <Plus className="mr-2 h-4 w-4" />
-                Upload Your First Document
-              </Button>
+      {/* Document list/grid */}
+      {isLoading ? (
+        <div className="text-center py-12">Loading documents...</div>
+      ) : documents.length === 0 ? (
+        <div className="border-2 border-dashed border-gray-200 rounded-lg">
+          <div className="text-center py-12">
+            <p className="text-gray-500 mb-4">No documents found</p>
+            <Button onClick={() => setIsUploadSheetOpen(true)}>
+              <Plus className="mr-2 h-4 w-4" />
+              Upload Your First Document
+            </Button>
+          </div>
+        </div>
+      ) : (
+        <div>
+          {viewMode === "list" ? (
+            <div className="border rounded-md">
+              {documents.map((doc) => (
+                <DocumentCard
+                  key={doc.id}
+                  document={doc}
+                  layout="list"
+                  isSelected={selectedDocuments.has(doc.id)}
+                  onSelect={handleDocumentSelect}
+                  onView={onDocumentView}
+                  onEdit={onDocumentEdit}
+                  onDelete={handleDeleteDocument}
+                  onDownload={handleDownload}
+                  onUpdate={refetch}
+                />
+              ))}
             </div>
           ) : (
-            <>
-              {/* Select All */}
-              <div className="flex items-center mb-4">
-                <input
-                  type="checkbox"
-                  checked={
-                    selectedDocuments.size === documents.length &&
-                    documents.length > 0
-                  }
-                  onChange={
-                    selectedDocuments.size === documents.length
-                      ? handleDeselectAll
-                      : handleSelectAll
-                  }
-                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded mr-2"
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              {documents.map((doc) => (
+                <DocumentCard
+                  key={doc.id}
+                  document={doc}
+                  layout="grid"
+                  isSelected={selectedDocuments.has(doc.id)}
+                  onSelect={handleDocumentSelect}
+                  onView={onDocumentView}
+                  onEdit={onDocumentEdit}
+                  onDelete={handleDeleteDocument}
+                  onDownload={handleDownload}
+                  onUpdate={refetch}
                 />
-                <label className="text-sm text-gray-700">
-                  Select all ({documents.length})
-                </label>
-              </div>
-
-              {/* Documents */}
-              {viewMode === "list" ? (
-                <div className="space-y-2">
-                  {documents.map((document) => (
-                    <DocumentCard
-                      key={document.id}
-                      document={document}
-                      view="list"
-                      isSelected={selectedDocuments.has(document.id)}
-                      onSelect={handleDocumentSelect}
-                      onView={onDocumentView}
-                      onEdit={onDocumentEdit}
-                      onDelete={handleDeleteDocument}
-                      onDownload={handleDownload}
-                    />
-                  ))}
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                  {documents.map((document) => (
-                    <DocumentCard
-                      key={document.id}
-                      document={document}
-                      view="grid"
-                      isSelected={selectedDocuments.has(document.id)}
-                      onSelect={handleDocumentSelect}
-                      onView={onDocumentView}
-                      onEdit={onDocumentEdit}
-                      onDelete={handleDeleteDocument}
-                      onDownload={handleDownload}
-                    />
-                  ))}
-                </div>
-              )}
-
-              {/* Pagination */}
-              {paginationInfo && paginationInfo.totalPages > 1 && (
-                <div className="flex items-center justify-center gap-2 mt-8">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    disabled={!paginationInfo.hasPrev}
-                    onClick={() => handlePageChange(paginationInfo.page - 1)}
-                  >
-                    Previous
-                  </Button>
-                  <span className="text-sm text-gray-500">
-                    Page {paginationInfo.page} of {paginationInfo.totalPages}
-                  </span>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    disabled={!paginationInfo.hasNext}
-                    onClick={() => handlePageChange(paginationInfo.page + 1)}
-                  >
-                    Next
-                  </Button>
-                </div>
-              )}
-            </>
+              ))}
+            </div>
           )}
         </div>
-      </div>
+      )}
 
-      {/* TODO: Business API - Additional features require API enhancements */}
-      {/* See docs/api-change-requests.md entry from 2024-12-19 */}
+      {/* Pagination */}
+      {paginationInfo && paginationInfo.totalPages > 1 && (
+        <div className="flex items-center justify-end space-x-2 py-4">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => handlePageChange(paginationInfo.page - 1)}
+            disabled={!paginationInfo.hasPrevPage}
+          >
+            Previous
+          </Button>
+          <span>
+            Page {paginationInfo.page} of {paginationInfo.totalPages}
+          </span>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => handlePageChange(paginationInfo.page + 1)}
+            disabled={!paginationInfo.hasNextPage}
+          >
+            Next
+          </Button>
+        </div>
+      )}
+
+      {/* Upload Sheet */}
+      <Sheet open={isUploadSheetOpen} onOpenChange={setIsUploadSheetOpen}>
+        <SheetContent className="w-[500px] sm:w-[540px]">
+          <SheetHeader>
+            <SheetTitle>Upload New Documents</SheetTitle>
+            <SheetDescription>
+              Select one or more files to upload.
+            </SheetDescription>
+          </SheetHeader>
+          <div className="mt-8">
+            <DocumentUpload onUploadSuccess={handleUploadSuccess} />
+          </div>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }

@@ -1,0 +1,152 @@
+# Task ID: 1
+# Title: Project Setup with Next.js 15, TypeScript, and shadcn/ui
+# Status: done
+# Dependencies: None
+# Priority: high
+# Description: Initialize the project repository with Next.js 15, TypeScript, and configure shadcn/ui components with Tailwind CSS for styling using pnpm as the package manager for improved performance and dependency management.
+# Details:
+1. Install pnpm globally: `npm install -g pnpm`
+2. Create a new Next.js 15 project with TypeScript support using `pnpm create next-app@latest agentic-workflow-dashboard` with the App Router
+3. Create .npmrc file with proper Next.js configuration and package manager enforcement:
+   ```
+   node-linker=hoisted
+   shamefully-hoist=true
+   engine-strict=true
+   ```
+4. Configure Tailwind CSS (should be included in the Next.js setup)
+5. Install and configure shadcn/ui using their CLI: `pnpm dlx shadcn-ui@latest init`
+6. Set up ESLint and Prettier for code quality
+7. Configure directory structure following Next.js 15 best practices:
+   - `/app` - App Router pages and layouts
+   - `/components` - Reusable UI components
+   - `/lib` - Utility functions and shared code
+   - `/types` - TypeScript type definitions
+   - `/styles` - Global styles and Tailwind customizations
+   - `/scripts` - Utility scripts including package manager enforcement
+8. Set up Git repository with appropriate .gitignore, including entries to ignore npm and yarn lock files:
+   ```
+   # Package manager locks (except pnpm)
+   package-lock.json
+   yarn.lock
+   ```
+9. Create a basic README.md with project setup instructions including package manager requirements
+10. Install React Query (TanStack Query v5): `pnpm add @tanstack/react-query@latest @tanstack/react-query-devtools@latest`
+11. Configure React Query provider in the app layout
+12. Update all package.json scripts to work with pnpm:
+   ```json
+   {
+     "scripts": {
+       "dev": "next dev",
+       "build": "next build", 
+       "start": "next start",
+       "lint": "next lint",
+       "type-check": "tsc --noEmit",
+       "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+       "analyze": "ANALYZE=true next build"
+     }
+   }
+   ```
+13. Configure CI/CD optimization with pnpm store directory
+14. Set up package.json engines field to enforce pnpm usage and Node.js requirements:
+   ```json
+   "engines": {
+     "node": ">=18.17.0",
+     "pnpm": ">=8.0.0"
+   }
+   ```
+15. Create a package manager enforcement script at scripts/check-package-manager.js
+16. Configure next.config.js for Next.js 15:
+   ```javascript
+   /** @type {import('next').NextConfig} */
+   const nextConfig = {
+     reactStrictMode: true,
+     images: {
+       domains: ['api.your-domain.com'],
+       formats: ['image/avif', 'image/webp'], // Enhanced formats
+     },
+     experimental: {
+       serverActions: {
+         allowedOrigins: ['localhost:3000', 'your-production-domain.com'],
+       },
+       optimizeCss: true,
+       serverComponentsExternalPackages: [],
+     },
+   }
+
+   module.exports = nextConfig
+   ```
+17. Update TypeScript configuration for Next.js 15 compatibility
+
+# Test Strategy:
+1. Verify that the project builds successfully with `pnpm build`
+2. Ensure that the development server runs without errors using `pnpm dev`
+3. Confirm that shadcn/ui components render correctly
+4. Validate TypeScript configuration with `pnpm type-check`
+5. Test React Query provider setup by creating a simple test query
+6. Verify pnpm dependency resolution by checking node_modules structure
+7. Confirm .npmrc configuration is correctly applied
+8. Test package manager enforcement by attempting to use npm or yarn and verifying they are blocked
+9. Verify the check-package-manager.js script correctly identifies and prevents non-pnpm usage
+10. Verify Turbopack is working correctly as the default bundler
+11. Test Next.js 15 Image component with the updated API (no layout prop)
+12. Validate that Server Actions work correctly with the new configuration
+13. Ensure React 19 compatibility with all components
+
+# Subtasks:
+## 1. Research pnpm benefits for Next.js projects [completed]
+### Dependencies: None
+### Description: Document the benefits of using pnpm for Next.js 15 projects with React Query, shadcn/ui, and TypeScript.
+### Details:
+Research findings: pnpm is 2-3x faster than npm, uses 40% less disk space, and provides better dependency isolation for complex projects like this dashboard. Optimal for Next.js 15 projects with React Query, shadcn/ui, and TypeScript in 2025.
+
+## 2. Create package manager enforcement script [done]
+### Dependencies: None
+### Description: Develop a script to enforce pnpm usage and prevent npm/yarn usage across the team.
+### Details:
+1. Create scripts/check-package-manager.js to detect and block non-pnpm usage
+2. Add script to package.json preinstall hook to run automatically
+3. Include clear error messages explaining why pnpm is required
+4. Document the enforcement mechanism in README.md
+
+## 3. Configure package manager enforcement in project files [done]
+### Dependencies: 1.2
+### Description: Update project configuration files to enforce pnpm usage across the team.
+### Details:
+1. Update .npmrc with engine-strict=true
+2. Configure package.json engines field to specify pnpm version requirements and Node.js >=18.17.0
+3. Update .gitignore to exclude package-lock.json and yarn.lock
+4. Add documentation in README.md about package manager requirements
+
+## 4. Configure Next.js 15 specific settings [done]
+### Dependencies: None
+### Description: Set up Next.js 15 specific configuration files and handle breaking changes from previous versions.
+### Details:
+1. Create next.config.js with Next.js 15 specific settings including Turbopack configuration
+2. Update tsconfig.json with the latest TypeScript configuration for Next.js 15
+3. Update Image component usage to remove deprecated layout prop
+4. Configure Server Actions with proper allowedOrigins
+5. Document Turbopack as the default bundler in README.md
+
+## 5. Update package.json scripts for Next.js 15 [done]
+### Dependencies: None
+### Description: Configure package.json scripts to work optimally with Next.js 15 and pnpm.
+### Details:
+1. Add all required scripts to package.json:
+   - dev: "next dev"
+   - build: "next build"
+   - start: "next start"
+   - lint: "next lint"
+   - type-check: "tsc --noEmit"
+   - format: "prettier --write \"**/*.{ts,tsx,md}\""
+   - analyze: "ANALYZE=true next build"
+2. Document script usage in README.md
+
+## 6. Update documentation to reflect Next.js 15 [done]
+### Dependencies: 1.1
+### Description: Update all documentation and references to reflect Next.js 15 instead of Next.js 14.
+### Details:
+1. Update README.md to reference Next.js 15 throughout
+2. Update any comments in configuration files to reference Next.js 15
+3. Ensure all documentation accurately reflects Next.js 15 features and requirements
+4. Update subtask documentation where needed to reference Next.js 15
+

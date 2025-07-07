@@ -1,0 +1,28 @@
+# Task ID: 4
+# Title: Dashboard Home with System Overview
+# Status: pending
+# Dependencies: 2, 3
+# Priority: high
+# Description: Create the main dashboard home page with key system metrics, health status, and quick actions for common tasks.
+# Details:
+1. Implement the dashboard home page in `/app/page.tsx`
+2. Create a system health status card component using data from `/health` endpoints
+3. Implement key metrics cards for document processing, collections, and workflows
+4. Add quick action buttons for common tasks (upload document, create collection, etc.)
+5. Create a recent activity feed component
+6. Implement a resource utilization chart using Recharts
+7. Add system alerts and notifications section
+8. Create a responsive grid layout for dashboard components
+9. Implement skeleton loading states for all dashboard components
+10. Add refresh functionality for dashboard data
+11. Create a dashboard context for managing dashboard state
+12. Implement time range selector for metrics (last 24h, 7d, 30d)
+
+# Test Strategy:
+1. Test data fetching from health endpoints
+2. Verify that metrics update correctly
+3. Test quick action buttons functionality
+4. Validate responsive layout on different screen sizes
+5. Test skeleton loading states
+6. Verify refresh functionality
+7. Test time range selector for metrics

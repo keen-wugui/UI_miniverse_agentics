@@ -1,0 +1,187 @@
+# Task ID: 6
+# Title: Document Management Interface
+# Status: in-progress
+# Dependencies: 2, 3
+# Priority: high
+# Description: Create a comprehensive document management interface with grid and list views, filtering, search, and document operations.
+# Details:
+1. Implement document management page in `/app/documents/page.tsx`
+2. Create document list and grid view components with toggle functionality
+3. Implement document card component with metadata display
+4. Add advanced filtering by type, status, collection, and processing date
+5. Implement search functionality for documents
+6. Create document detail view in `/app/documents/[id]/page.tsx`
+7. Implement document preview functionality
+8. Add document processing status timeline
+9. Implement bulk operations for document management (move, delete, reprocess)
+10. Create document upload component with drag-and-drop using react-dropzone
+11. Add pagination or infinite scrolling for document lists
+12. Implement optimistic updates for document operations
+13. Add document sorting options
+14. Create document metadata editor
+
+# Test Strategy:
+1. Test document listing with various filter combinations
+2. Verify search functionality with different queries
+3. Test document preview with different document types
+4. Validate bulk operations functionality
+5. Test document upload with various file types and sizes
+6. Verify pagination/infinite scrolling with large document sets
+7. Test optimistic updates for document operations
+8. Validate responsive behavior of document views
+
+# Subtasks:
+## 2. Document Detail View and Preview Functionality [done]
+### Dependencies: 6.1
+### Description: Develop a comprehensive document detail view with preview capabilities for various file types
+### Details:
+UI Requirements: Create a split-pane interface with document metadata panel and preview area, support light/dark mode for the preview, implement zoom controls and full-screen option. Data Handling: Load document content on-demand with appropriate loading states, implement file type detection for proper rendering, cache previewed documents for performance. User Interaction: Enable document navigation with keyboard shortcuts, implement annotation tools if applicable, provide download and sharing options.
+<info added on 2025-07-07T13:48:33.365Z>
+# Implementation Progress: Document Detail View
+
+**Implementation Started:**
+- Created DocumentDetailView component with split-pane layout using React Resizable Panels
+- Basic structure for DocumentPreview and DocumentMetadata components established
+
+**Current Focus:**
+- Main container component (document-detail-view.tsx)
+- Setting up responsive layout that adapts to different screen sizes
+- Implementing context providers for document state management
+
+**Next Steps:**
+- Complete file type detection logic based on MIME types
+- Implement preview components for different document types
+- Add metadata display with proper formatting
+- Integrate preview controls (zoom, full-screen)
+- Connect with document API hooks for data fetching
+
+**Technical Notes:**
+- Using React Suspense for loading states
+- Implementing error boundaries for preview failures
+- Planning to add keyboard shortcut listener at the container level
+</info added on 2025-07-07T13:48:33.365Z>
+<info added on 2025-07-07T13:56:25.608Z>
+# Implementation Completed: Document Detail View
+
+**Fully Implemented Components:**
+- DocumentDetailView (src/components/documents/document-detail-view.tsx)
+- PreviewControls (src/components/documents/preview-controls.tsx)
+- DocumentMetadata (src/components/documents/document-metadata.tsx)
+- DocumentPreview (src/components/documents/document-preview.tsx)
+
+**Key Features Delivered:**
+- Split-pane interface with resizable panels
+- Light/dark mode theme support
+- Comprehensive zoom controls (25% to 500%) and full-screen option
+- On-demand content loading with appropriate loading states
+- Intelligent file type detection for proper rendering
+- Keyboard navigation shortcuts (Escape, Ctrl+F/R/D, +/-, arrows)
+- Document download and sharing functionality
+- Error boundaries with visual indicators
+- Responsive design adapting to different screen sizes
+
+**Technical Implementation Details:**
+- Used React Resizable Panels for the split layout
+- Implemented document state management with context providers
+- Added comprehensive keyboard event handling
+- Created specialized preview components for different file types
+- Integrated with existing Document API
+- All components properly typed with TypeScript
+- Build passes with no TypeScript errors
+
+The document detail view is now fully functional and ready for integration with the main document management interface.
+</info added on 2025-07-07T13:56:25.608Z>
+
+## 3. Document Upload with Drag-and-Drop [done]
+### Dependencies: 6.1
+### Description: Implement an intuitive document upload system with drag-and-drop functionality and progress tracking
+### Details:
+UI Requirements: Design a dropzone area with visual feedback, create a multi-file upload queue interface, implement progress bars with cancel options. Data Handling: Set up chunked file uploads for large documents, validate file types and sizes before upload, handle network interruptions gracefully. User Interaction: Provide clear error messages for failed uploads, implement retry functionality, allow users to add metadata during or after upload process.
+
+## 4. Bulk Operations and Optimistic Updates [done]
+### Dependencies: 6.1, 6.2
+### Description: Develop functionality for performing operations on multiple documents with optimistic UI updates
+### Details:
+UI Requirements: Create multi-select controls in list/grid views, design a contextual action bar for bulk operations, implement confirmation dialogs for destructive actions. Data Handling: Batch API requests efficiently, implement optimistic updates to reflect changes immediately in UI, provide rollback mechanism for failed operations. User Interaction: Enable shift-select for range selection, provide clear feedback on operation progress and results, ensure keyboard accessibility for all bulk actions.
+
+## 5. Document Metadata Editing [pending]
+### Dependencies: 6.2, 6.4
+### Description: Create an interface for viewing and editing document metadata with validation and history tracking
+### Details:
+UI Requirements: Design intuitive forms for metadata editing, implement inline editing capabilities, create a revision history view. Data Handling: Validate metadata changes in real-time, implement autosave functionality, maintain edit history with user attribution. User Interaction: Provide contextual help for metadata fields, implement keyboard shortcuts for common editing actions, ensure all forms are fully accessible.
+
+## 1. Document List/Grid Views Implementation [done]
+### Dependencies: None
+### Description: Create flexible document list and grid views with comprehensive filtering and search capabilities
+### Details:
+UI Requirements: Design responsive list and grid layouts with toggle option between views, implement sortable columns, pagination controls, and visual indicators for document types. Data Handling: Fetch document metadata efficiently with pagination support, implement client-side caching, and handle error states gracefully. User Interaction: Enable keyboard navigation, implement quick-action hover menus, and ensure accessibility compliance for all interactive elements.
+<info added on 2025-07-07T13:44:42.111Z>
+## ✅ **Subtask 6.1 Implementation Complete**
+
+Successfully implemented comprehensive document list and grid views with advanced functionality:
+
+### 🎯 **Components Created**
+
+1. **`DocumentCard`** - Flexible component supporting both list and grid layouts
+   - Dynamic file type icons and status indicators
+   - Hover actions menu with view/edit/delete/download options
+   - Selection checkbox integration
+   - Tag display and file metadata
+   - Responsive design for different view modes
+
+2. **`DocumentFilters`** - Advanced filtering interface
+   - File type, status, size range, and date range filters
+   - Basic/Advanced filter modes
+   - Tags operator logic (AND/OR)
+   - Real-time filter state management
+   - Clear all functionality
+
+3. **`DocumentSearch`** - Comprehensive search functionality
+   - Debounced search input (300ms delay)
+   - Multiple search modes: fuzzy, exact, prefix matching
+   - Multi-field search (name, content, tags, filename)
+   - Case sensitivity toggle
+   - Advanced search options with descriptions
+
+4. **`DocumentManagement`** - Main orchestrating component
+   - List/grid view toggle with responsive layouts
+   - Multi-select with bulk operations (delete, download)
+   - Sorting by name, date, size, status with asc/desc
+   - Pagination with proper page state management
+   - Filter sidebar toggle
+   - Error states and loading indicators
+
+### 🔧 **Integration & API**
+
+- **React Query Integration**: Uses existing `useDocuments`, `useDeleteDocument`, `useBulkDeleteDocuments` hooks
+- **Optimistic Updates**: Immediate UI feedback for document operations
+- **Error Handling**: Comprehensive error states with retry functionality
+- **Accessibility**: Keyboard navigation, proper labels, ARIA compliance
+
+### 📋 **API Requirements Documented**
+
+Following the external_apis rule, documented API enhancement needs in:
+- `docs/api-change-requests.md` - Enhanced filtering, bulk operations, metadata updates
+- `docs/business-api-endpoints.md` - Current API endpoint documentation
+- Added TODO comments in code pointing to API change requests
+
+### 🎨 **UI/UX Features**
+
+- **Responsive Design**: Works on mobile, tablet, desktop
+- **Visual Feedback**: Loading states, hover effects, selection indicators  
+- **Professional Layout**: Clean shadcn/ui design system integration
+- **Keyboard Shortcuts**: Full keyboard accessibility
+- **Bulk Operations**: Multi-select with clear visual feedback
+
+The implementation provides a professional-grade document management interface ready for production use, with clear documentation of what API enhancements are needed for full feature parity.
+</info added on 2025-07-07T13:44:42.111Z>
+
+## 6. Implement Remaining Bulk Operations (Download, Edit) [blocked]
+### Dependencies: None
+### Description: Implement bulk download and bulk edit functionality for the document management interface. This is currently blocked pending the creation of the POST /api/documents/bulk endpoint.
+### Details:
+- Add a dropdown menu for bulk actions (download, edit) that appears when documents are selected.
+- Implement the client-side logic to call the new bulk operations API endpoint.
+- Handle loading states and success/error feedback to the user.
+- This subtask depends on the API changes outlined in docs/api-change-requests.md.
+
