@@ -171,6 +171,13 @@ export interface CollectionSearchRequest extends SearchParams {
   owner?: string;
 }
 
+export interface CollectionDocumentsResponse extends PaginatedResponse<Document> {}
+
+export interface AddDocumentToCollectionRequest {
+  collectionId: string;
+  documentId: string;
+}
+
 // Workflow endpoint interfaces
 export interface Workflow extends BaseEntity {
   name: string;
@@ -407,6 +414,131 @@ export interface BusinessMetricsSummary {
     uptime: number;
     lastIncident?: string;
   };
+  totalUsers?: number;
+  status?: "healthy" | "warning" | "critical";
+  alerts?: {
+    id: string;
+    severity: "low" | "medium" | "high" | "critical";
+    message: string;
+    timestamp: string;
+  }[];
+  systemLoad?: number;
+  averageResponseTime?: number;
+  errorRate?: number;
+  uptime?: number;
+}
+
+export interface MetricsFilterRequest {
+  dateRange?: {
+    start: string;
+    end: string;
+  };
+  granularity?: "hour" | "day" | "week" | "month";
+  metrics?: string[];
+  groupBy?: string[];
+}
+
+export interface KPI {
+  id: string;
+  name: string;
+  description?: string;
+  value: number;
+  unit: string;
+  target?: number;
+  threshold?: {
+    warning: number;
+    critical: number;
+  };
+  trend?: {
+    direction: "up" | "down" | "stable";
+    percentage: number;
+  };
+  category: string;
+  lastUpdated: string;
+}
+
+export interface CreateKPIRequest {
+  name: string;
+  description?: string;
+  unit: string;
+  target?: number;
+  threshold?: {
+    warning: number;
+    critical: number;
+  };
+  category: string;
+}
+
+export interface UpdateKPIRequest {
+  name?: string;
+  description?: string;
+  unit?: string;
+  target?: number;
+  threshold?: {
+    warning: number;
+    critical: number;
+  };
+  category?: string;
+}
+
+export interface AnalyticsReportRequest {
+  dateRange: {
+    start: string;
+    end: string;
+  };
+  metrics: string[];
+  granularity?: "hour" | "day" | "week" | "month";
+  groupBy?: string[];
+  filters?: Record<string, any>;
+}
+
+export interface AnalyticsReportResponse {
+  dateRange: {
+    start: string;
+    end: string;
+  };
+  metrics: {
+    name: string;
+    value: number;
+    unit: string;
+    trend?: {
+      direction: "up" | "down" | "stable";
+      percentage: number;
+    };
+  }[];
+  chartData: {
+    timestamp: string;
+    values: Record<string, number>;
+  }[];
+  totalUsers: number;
+  totalDocuments: number;
+  totalCollections: number;
+  totalQueries: number;
+  summary: {
+    totalValue: number;
+    averageValue: number;
+    peakValue: number;
+    lowValue: number;
+  };
+}
+
+export interface MetricsExportRequest {
+  dateRange: {
+    start: string;
+    end: string;
+  };
+  metrics: string[];
+  format: "csv" | "json" | "excel";
+  includeHeaders?: boolean;
+  filters?: Record<string, any>;
+}
+
+export interface MetricsExportResponse {
+  downloadUrl: string;
+  filename: string;
+  format: string;
+  expiresAt: string;
+  fileSize: number;
 }
 
 export interface PerformanceMetrics {
@@ -432,6 +564,9 @@ export interface PerformanceMetrics {
     disk: number;
     network: number;
   };
+  averageResponseTime?: number;
+  errorRate?: number;
+  systemLoad?: number;
 }
 
 export interface UsageMetrics {
@@ -508,6 +643,8 @@ export type WorkflowExecutionsResponse = PaginatedResponse<WorkflowExecution>;
 
 export type RAGConfigResponse = RAGConfig;
 export type BusinessMetricsSummaryResponse = BusinessMetricsSummary;
+export type BusinessMetricsResponse = BusinessMetricsSummary;
+export type KPIResponse = PaginatedResponse<KPI>;
 export type PerformanceMetricsResponse = PerformanceMetrics;
 export type UsageMetricsResponse = UsageMetrics;
 export type CostMetricsResponse = CostMetrics;

@@ -15,7 +15,7 @@ import type {
   ExecuteWorkflowRequest,
   WorkflowExecutionResponse,
   WorkflowExecutionsResponse,
-  WorkflowExecutionStatus,
+  WorkflowExecution,
   PaginationParams,
 } from "@/types/api";
 
@@ -117,16 +117,16 @@ export const useWorkflowExecutionStatus = (
 ) => {
   const cacheConfig = cacheStrategies.workflows;
 
-  return useQuery<WorkflowExecutionStatus>({
+  return useQuery<WorkflowExecution>({
     queryKey: queryKeys.workflows.executionStatus(executionId),
-    queryFn: async (): Promise<WorkflowExecutionStatus> => {
+    queryFn: async (): Promise<WorkflowExecution> => {
       try {
         const url = buildUrl(
           apiConfig.api.baseUrl,
           apiConfig.endpoints.workflows.executionStatus,
           { executionId }
         );
-        const response = await apiClient.get<WorkflowExecutionStatus>(url);
+        const response = await apiClient.get<WorkflowExecution>(url);
         return response.data;
       } catch (error) {
         throw handleApiError(error);

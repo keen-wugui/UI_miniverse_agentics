@@ -84,6 +84,8 @@ export const queryKeys = {
       [...queryKeys.collections.all, "search", params] as const,
     documents: (id: string, params?: any) =>
       [...queryKeys.collections.detail(id), "documents", params] as const,
+    stats: (id: string) =>
+      [...queryKeys.collections.detail(id), "stats"] as const,
   },
 
   // Workflow queries
@@ -125,7 +127,12 @@ export const queryKeys = {
   // Business metrics queries
   businessMetrics: {
     all: ["business-metrics"] as const,
+    overview: (filters?: any) => [...queryKeys.businessMetrics.all, "overview", filters] as const,
     summary: () => [...queryKeys.businessMetrics.all, "summary"] as const,
+    kpis: (params?: any) => [...queryKeys.businessMetrics.all, "kpis", params] as const,
+    report: (reportRequest: any) => [...queryKeys.businessMetrics.all, "report", reportRequest] as const,
+    realtime: (filters?: any) => [...queryKeys.businessMetrics.all, "realtime", filters] as const,
+    alerts: () => [...queryKeys.businessMetrics.all, "alerts"] as const,
     performance: (timeRange?: string) =>
       [...queryKeys.businessMetrics.all, "performance", timeRange] as const,
     usage: (timeRange?: string) =>
