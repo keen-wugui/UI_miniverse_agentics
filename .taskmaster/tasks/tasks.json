@@ -362,68 +362,68 @@
         "id": 6,
         "title": "Document Management Interface",
         "description": "Create a comprehensive document management interface with grid and list views, filtering, search, and document operations.",
-        "details": "1. Implement document management page in `/app/documents/page.tsx`\n2. Create document list and grid view components with toggle functionality\n3. Implement document card component with metadata display\n4. Add advanced filtering by type, status, collection, and processing date\n5. Implement search functionality for documents\n6. Create document detail view in `/app/documents/[id]/page.tsx`\n7. Implement document preview functionality\n8. Add document processing status timeline\n9. Implement bulk operations for document management (move, delete, reprocess)\n10. Create document upload component with drag-and-drop using react-dropzone\n11. Add pagination or infinite scrolling for document lists\n12. Implement optimistic updates for document operations\n13. Add document sorting options\n14. Create document metadata editor",
-        "testStrategy": "1. Test document listing with various filter combinations\n2. Verify search functionality with different queries\n3. Test document preview with different document types\n4. Validate bulk operations functionality\n5. Test document upload with various file types and sizes\n6. Verify pagination/infinite scrolling with large document sets\n7. Test optimistic updates for document operations\n8. Validate responsive behavior of document views",
-        "priority": "high",
+        "status": "in-progress",
         "dependencies": [
           2,
           3
         ],
-        "status": "pending",
+        "priority": "high",
+        "details": "1. Implement document management page in `/app/documents/page.tsx`\n2. Create document list and grid view components with toggle functionality\n3. Implement document card component with metadata display\n4. Add advanced filtering by type, status, collection, and processing date\n5. Implement search functionality for documents\n6. Create document detail view in `/app/documents/[id]/page.tsx`\n7. Implement document preview functionality\n8. Add document processing status timeline\n9. Implement bulk operations for document management (move, delete, reprocess)\n10. Create document upload component with drag-and-drop using react-dropzone\n11. Add pagination or infinite scrolling for document lists\n12. Implement optimistic updates for document operations\n13. Add document sorting options\n14. Create document metadata editor",
+        "testStrategy": "1. Test document listing with various filter combinations\n2. Verify search functionality with different queries\n3. Test document preview with different document types\n4. Validate bulk operations functionality\n5. Test document upload with various file types and sizes\n6. Verify pagination/infinite scrolling with large document sets\n7. Test optimistic updates for document operations\n8. Validate responsive behavior of document views",
         "subtasks": [
-          {
-            "id": 1,
-            "title": "Document List/Grid Views Implementation",
-            "description": "Create flexible document list and grid views with comprehensive filtering and search capabilities",
-            "dependencies": [],
-            "details": "UI Requirements: Design responsive list and grid layouts with toggle option between views, implement sortable columns, pagination controls, and visual indicators for document types. Data Handling: Fetch document metadata efficiently with pagination support, implement client-side caching, and handle error states gracefully. User Interaction: Enable keyboard navigation, implement quick-action hover menus, and ensure accessibility compliance for all interactive elements.",
-            "status": "pending",
-            "testStrategy": ""
-          },
           {
             "id": 2,
             "title": "Document Detail View and Preview Functionality",
             "description": "Develop a comprehensive document detail view with preview capabilities for various file types",
+            "status": "pending",
             "dependencies": [
               1
             ],
             "details": "UI Requirements: Create a split-pane interface with document metadata panel and preview area, support light/dark mode for the preview, implement zoom controls and full-screen option. Data Handling: Load document content on-demand with appropriate loading states, implement file type detection for proper rendering, cache previewed documents for performance. User Interaction: Enable document navigation with keyboard shortcuts, implement annotation tools if applicable, provide download and sharing options.",
-            "status": "pending",
             "testStrategy": ""
           },
           {
             "id": 3,
             "title": "Document Upload with Drag-and-Drop",
             "description": "Implement an intuitive document upload system with drag-and-drop functionality and progress tracking",
+            "status": "pending",
             "dependencies": [
               1
             ],
             "details": "UI Requirements: Design a dropzone area with visual feedback, create a multi-file upload queue interface, implement progress bars with cancel options. Data Handling: Set up chunked file uploads for large documents, validate file types and sizes before upload, handle network interruptions gracefully. User Interaction: Provide clear error messages for failed uploads, implement retry functionality, allow users to add metadata during or after upload process.",
-            "status": "pending",
             "testStrategy": ""
           },
           {
             "id": 4,
             "title": "Bulk Operations and Optimistic Updates",
             "description": "Develop functionality for performing operations on multiple documents with optimistic UI updates",
+            "status": "pending",
             "dependencies": [
               1,
               2
             ],
             "details": "UI Requirements: Create multi-select controls in list/grid views, design a contextual action bar for bulk operations, implement confirmation dialogs for destructive actions. Data Handling: Batch API requests efficiently, implement optimistic updates to reflect changes immediately in UI, provide rollback mechanism for failed operations. User Interaction: Enable shift-select for range selection, provide clear feedback on operation progress and results, ensure keyboard accessibility for all bulk actions.",
-            "status": "pending",
             "testStrategy": ""
           },
           {
             "id": 5,
             "title": "Document Metadata Editing",
             "description": "Create an interface for viewing and editing document metadata with validation and history tracking",
+            "status": "pending",
             "dependencies": [
               2,
               4
             ],
             "details": "UI Requirements: Design intuitive forms for metadata editing, implement inline editing capabilities, create a revision history view. Data Handling: Validate metadata changes in real-time, implement autosave functionality, maintain edit history with user attribution. User Interaction: Provide contextual help for metadata fields, implement keyboard shortcuts for common editing actions, ensure all forms are fully accessible.",
-            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 1,
+            "title": "Document List/Grid Views Implementation",
+            "description": "Create flexible document list and grid views with comprehensive filtering and search capabilities",
+            "dependencies": [],
+            "details": "UI Requirements: Design responsive list and grid layouts with toggle option between views, implement sortable columns, pagination controls, and visual indicators for document types. Data Handling: Fetch document metadata efficiently with pagination support, implement client-side caching, and handle error states gracefully. User Interaction: Enable keyboard navigation, implement quick-action hover menus, and ensure accessibility compliance for all interactive elements.\n<info added on 2025-07-07T13:44:42.111Z>\n## ✅ **Subtask 6.1 Implementation Complete**\n\nSuccessfully implemented comprehensive document list and grid views with advanced functionality:\n\n### 🎯 **Components Created**\n\n1. **`DocumentCard`** - Flexible component supporting both list and grid layouts\n   - Dynamic file type icons and status indicators\n   - Hover actions menu with view/edit/delete/download options\n   - Selection checkbox integration\n   - Tag display and file metadata\n   - Responsive design for different view modes\n\n2. **`DocumentFilters`** - Advanced filtering interface\n   - File type, status, size range, and date range filters\n   - Basic/Advanced filter modes\n   - Tags operator logic (AND/OR)\n   - Real-time filter state management\n   - Clear all functionality\n\n3. **`DocumentSearch`** - Comprehensive search functionality\n   - Debounced search input (300ms delay)\n   - Multiple search modes: fuzzy, exact, prefix matching\n   - Multi-field search (name, content, tags, filename)\n   - Case sensitivity toggle\n   - Advanced search options with descriptions\n\n4. **`DocumentManagement`** - Main orchestrating component\n   - List/grid view toggle with responsive layouts\n   - Multi-select with bulk operations (delete, download)\n   - Sorting by name, date, size, status with asc/desc\n   - Pagination with proper page state management\n   - Filter sidebar toggle\n   - Error states and loading indicators\n\n### 🔧 **Integration & API**\n\n- **React Query Integration**: Uses existing `useDocuments`, `useDeleteDocument`, `useBulkDeleteDocuments` hooks\n- **Optimistic Updates**: Immediate UI feedback for document operations\n- **Error Handling**: Comprehensive error states with retry functionality\n- **Accessibility**: Keyboard navigation, proper labels, ARIA compliance\n\n### 📋 **API Requirements Documented**\n\nFollowing the external_apis rule, documented API enhancement needs in:\n- `docs/api-change-requests.md` - Enhanced filtering, bulk operations, metadata updates\n- `docs/business-api-endpoints.md` - Current API endpoint documentation\n- Added TODO comments in code pointing to API change requests\n\n### 🎨 **UI/UX Features**\n\n- **Responsive Design**: Works on mobile, tablet, desktop\n- **Visual Feedback**: Loading states, hover effects, selection indicators  \n- **Professional Layout**: Clean shadcn/ui design system integration\n- **Keyboard Shortcuts**: Full keyboard accessibility\n- **Bulk Operations**: Multi-select with clear visual feedback\n\nThe implementation provides a professional-grade document management interface ready for production use, with clear documentation of what API enhancements are needed for full feature parity.\n</info added on 2025-07-07T13:44:42.111Z>",
+            "status": "done",
             "testStrategy": ""
           }
         ]
@@ -769,7 +769,7 @@
     ],
     "metadata": {
       "created": "2025-07-06T08:38:50.347Z",
-      "updated": "2025-07-07T13:28:29.034Z",
+      "updated": "2025-07-07T13:44:42.493Z",
       "description": "Tasks for master context"
     }
   }
