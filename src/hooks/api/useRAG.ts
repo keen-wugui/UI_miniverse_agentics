@@ -126,8 +126,9 @@ export const useRAGIndexStatus = (indexId: string, enabled: boolean = true) => {
     refetchOnWindowFocus: true,
     refetchOnMount: true,
     refetchOnReconnect: true,
-    refetchInterval: (data) => {
+    refetchInterval: (query) => {
       // Poll while indexing is in progress
+      const data = query.state.data;
       if (data?.status === "processing" || data?.status === "pending") {
         return 3000; // Poll every 3 seconds
       }

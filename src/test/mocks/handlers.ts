@@ -116,12 +116,14 @@ export const handlers = [
       const limit = parseInt(url.searchParams.get("limit") || "10");
 
       return HttpResponse.json({
-        documents: mockDocuments.slice((page - 1) * limit, page * limit),
+        data: mockDocuments.slice((page - 1) * limit, page * limit),
         pagination: {
           page,
           limit,
           total: mockDocuments.length,
           totalPages: Math.ceil(mockDocuments.length / limit),
+          hasNext: page * limit < mockDocuments.length,
+          hasPrev: page > 1,
         },
       });
     }
@@ -132,7 +134,7 @@ export const handlers = [
     if (!document) {
       return new HttpResponse(null, { status: 404 });
     }
-    return HttpResponse.json({ document });
+    return HttpResponse.json(document);
   }),
 
   http.post(
@@ -179,12 +181,14 @@ export const handlers = [
     `${apiConfig.api.baseUrl}${apiConfig.endpoints.collections.list}`,
     () => {
       return HttpResponse.json({
-        collections: mockCollections,
+        data: mockCollections,
         pagination: {
           page: 1,
           limit: 10,
           total: mockCollections.length,
           totalPages: 1,
+          hasNext: false,
+          hasPrev: false,
         },
       });
     }
@@ -195,7 +199,7 @@ export const handlers = [
     if (!collection) {
       return new HttpResponse(null, { status: 404 });
     }
-    return HttpResponse.json({ collection });
+    return HttpResponse.json(collection);
   }),
 
   http.post(
@@ -213,13 +217,7 @@ export const handlers = [
         metadata: body.metadata || {},
       };
 
-      return HttpResponse.json(
-        {
-          collection: newCollection,
-          message: "Collection created successfully",
-        },
-        { status: 201 }
-      );
+      return HttpResponse.json(newCollection, { status: 201 });
     }
   ),
 
@@ -228,12 +226,14 @@ export const handlers = [
     `${apiConfig.api.baseUrl}${apiConfig.endpoints.workflows.list}`,
     () => {
       return HttpResponse.json({
-        workflows: mockWorkflows,
+        data: mockWorkflows,
         pagination: {
           page: 1,
           limit: 10,
           total: mockWorkflows.length,
           totalPages: 1,
+          hasNext: false,
+          hasPrev: false,
         },
       });
     }
@@ -246,7 +246,7 @@ export const handlers = [
       if (!workflow) {
         return new HttpResponse(null, { status: 404 });
       }
-      return HttpResponse.json({ workflow });
+      return HttpResponse.json(workflow);
     }
   ),
 

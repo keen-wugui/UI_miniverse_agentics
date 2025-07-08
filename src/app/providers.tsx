@@ -15,6 +15,24 @@ import {
   handleApiError,
 } from "@/lib/error-handling";
 
+// Enable MSW in development
+async function enableMocking() {
+  if (process.env.NODE_ENV !== "development") {
+    return;
+  }
+
+  const { worker } = await import("@/test/mocks/browser");
+
+  // `worker.start()` returns a Promise that resolves
+  // once the Service Worker is up and ready to intercept requests.
+  return worker.start({
+    onUnhandledRequest: "warn",
+  });
+}
+
+// Start MSW before anything else
+enableMocking();
+
 // Global error reporter instance
 const errorReporter = new ErrorReporter({
   enabled: process.env.NODE_ENV === "production",

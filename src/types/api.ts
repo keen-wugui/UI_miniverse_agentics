@@ -171,7 +171,8 @@ export interface CollectionSearchRequest extends SearchParams {
   owner?: string;
 }
 
-export interface CollectionDocumentsResponse extends PaginatedResponse<Document> {}
+export interface CollectionDocumentsResponse
+  extends PaginatedResponse<Document> {}
 
 export interface AddDocumentToCollectionRequest {
   collectionId: string;
@@ -648,3 +649,61 @@ export type KPIResponse = PaginatedResponse<KPI>;
 export type PerformanceMetricsResponse = PerformanceMetrics;
 export type UsageMetricsResponse = UsageMetrics;
 export type CostMetricsResponse = CostMetrics;
+
+// RAG Index types (placeholders)
+export interface RAGIndexRequest {
+  name: string;
+  description?: string;
+  collections?: string[];
+  configuration?: Record<string, any>;
+}
+
+export interface RAGIndexResponse {
+  indexId: string;
+  name: string;
+  status: "pending" | "processing" | "completed" | "failed";
+  createdAt: string;
+  configuration?: Record<string, any>;
+}
+
+export interface RAGIndexStatusResponse {
+  indexId: string;
+  status: "pending" | "processing" | "completed" | "failed";
+  progress: number;
+  documentsProcessed?: number;
+  totalDocuments?: number;
+  errorMessage?: string;
+  completedAt?: string;
+}
+
+export interface RAGGenerateRequest {
+  prompt: string;
+  maxTokens?: number;
+  temperature?: number;
+  configuration?: Record<string, any>;
+}
+
+export interface RAGGenerateResponse {
+  text: string;
+  tokensUsed: number;
+  processingTime: number;
+  metadata?: Record<string, any>;
+}
+
+export interface RAGSourcesResponse {
+  queryId: string;
+  sources: Array<{
+    documentId: string;
+    documentName: string;
+    chunkId: string;
+    content: string;
+    score: number;
+    metadata?: Record<string, any>;
+  }>;
+}
+
+export interface RAGConfigurationResponse {
+  indexId: string;
+  configuration: RAGConfig;
+  status: string;
+}

@@ -66,7 +66,16 @@
       "chunking": "/rag/config/chunking",
       "retrieval": "/rag/config/retrieval",
       "query": "/rag/query",
-      "chat": "/rag/chat"
+      "chat": "/rag/chat",
+      "generate": "/rag/generate",
+      "index": "/rag/index",
+      "indexStatus": "/rag/index/{indexId}/status",
+      "sources": "/rag/query/{queryId}/sources",
+      "configuration": "/rag/config",
+      "deleteIndex": "/rag/index/{indexId}",
+      "rebuildIndex": "/rag/index/{indexId}/rebuild",
+      "batchQuery": "/rag/batch/query",
+      "batchIndex": "/rag/batch/index"
     },
     "businessMetrics": {
       "base": "/business-metrics",
