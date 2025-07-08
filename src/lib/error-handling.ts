@@ -512,3 +512,238 @@ export const createErrorToastHandler = (toastConfig: ToastConfig) => {
 };
 
 // All types are already exported at their declaration points
+
+export interface ErrorLoggerOptions {
+  showToast?: boolean;
+  toastOptions?: import("./toast-utils").ErrorToastOptions;
+  includeStack?: boolean;
+  context?: Record<string, any>;
+}
+
+export class ErrorLogger {
+  private static instance: ErrorLogger | null = null;
+  private isEnabled = true;
+  private severity = ERROR_SEVERITY.MEDIUM;
+  private toastManager: ReturnType<
+    typeof import("./toast-utils").createErrorToastHandler
+  > | null = null;
+
+  private constructor() {
+    // Lazy load toast manager to avoid circular dependencies
+    this.initializeToastManager();
+  }
+
+  private async initializeToastManager() {
+    if (typeof window !== "undefined") {
+      try {
+        const toastUtils = await import("./toast-utils");
+        this.toastManager = toastUtils.createErrorToastHandler();
+      } catch (error) {
+        console.warn("Failed to initialize toast manager:", error);
+      }
+    }
+  }
+
+  async log(error: EnhancedError, options: ErrorLoggerOptions = {}) {
+    if (!this.isEnabled || error.severity < this.severity) {
+      return;
+    }
+
+    const formattedError = this.formatErrorForLogging(error);
+
+    // Log to console based on severity
+    switch (error.severity) {
+      case ERROR_SEVERITY.CRITICAL:
+        console.error("🚨 CRITICAL ERROR:", formattedError);
+        break;
+      case ERROR_SEVERITY.HIGH:
+        console.error("🔴 HIGH SEVERITY ERROR:", formattedError);
+        break;
+      case ERROR_SEVERITY.MEDIUM:
+        console.warn("🟡 MEDIUM SEVERITY ERROR:", formattedError);
+        break;
+      case ERROR_SEVERITY.LOW:
+        console.info("ℹ️ LOW SEVERITY ERROR:", formattedError);
+        break;
+    }
+
+    // Show toast if requested and available
+    if (
+      options.showToast &&
+      this.toastManager &&
+      typeof window !== "undefined"
+    ) {
+      try {
+        this.toastManager.showError(error, options.toastOptions);
+      } catch (toastError) {
+        console.warn("Failed to show error toast:", toastError);
+      }
+    }
+
+    // External reporting (existing code)
+    if (this.shouldReport(error)) {
+      this.reportError(error, options);
+    }
+  }
+
+  private shouldReport(error: AppError): boolean {
+    const severityLevels = {
+      [ERROR_SEVERITY.LOW]: 1,
+      [ERROR_SEVERITY.MEDIUM]: 2,
+      [ERROR_SEVERITY.HIGH]: 3,
+      [ERROR_SEVERITY.CRITICAL]: 4,
+    };
+
+    return severityLevels[error.severity] >= severityLevels[this.severity];
+  }
+
+  private formatErrorForLogging(error: EnhancedError): string {
+    const baseMessage = `${error.name}: ${error.message}`;
+    const context = error.context ? JSON.stringify(error.context) : "";
+    return `${baseMessage} (Code: ${error.code}, Context: ${context})`;
+  }
+
+  private async reportError(error: AppError, options: ErrorLoggerOptions) {
+    const report: ErrorReport = {
+      error: {
+        ...error,
+        stack: options.includeStack ? error.stack : undefined,
+      },
+      userAgent:
+        typeof navigator !== "undefined" ? navigator.userAgent : undefined,
+      url: typeof window !== "undefined" ? window.location.href : undefined,
+      metadata: options.context,
+    };
+
+    await errorReporter.report(error, options.context);
+  }
+
+  static getInstance(): ErrorLogger {
+    if (!ErrorLogger.instance) {
+      ErrorLogger.instance = new ErrorLogger();
+    }
+    return ErrorLogger.instance;
+  }
+}
+
+// Enhanced error handlers with toast integration
+export function createApiErrorHandler(
+  options: {
+    showToast?: boolean;
+    toastOptions?: import("./toast-utils").ErrorToastOptions;
+  } = {}
+) {
+  return async (error: unknown, context?: Record<string, any>) => {
+    const enhancedError = handleApiError(error);
+
+    if (options.showToast) {
+      await ErrorLogger.getInstance().log(enhancedError, {
+        showToast: true,
+        toastOptions: options.toastOptions,
+      });
+    }
+
+    return enhancedError;
+  };
+}
+
+export function createFormErrorHandler(
+  options: {
+    showToast?: boolean;
+    toastOptions?: import("./toast-utils").ErrorToastOptions;
+  } = {}
+) {
+  return async (error: unknown, field?: string) => {
+    const context = field ? { field } : undefined;
+    const enhancedError = createValidationError(
+      error instanceof Error ? error.message : String(error),
+      field
+    );
+
+    if (options.showToast) {
+      await ErrorLogger.getInstance().log(enhancedError, {
+        showToast: true,
+        toastOptions: options.toastOptions,
+      });
+    }
+
+    return enhancedError;
+  };
+}
+
+// Convenience functions for common error scenarios
+export async function showApiErrorToast(
+  error: unknown,
+  options?: import("./toast-utils").ErrorToastOptions
+) {
+  if (typeof window === "undefined") return;
+
+  try {
+    const { showApiErrorToast } = await import("./toast-utils");
+    return showApiErrorToast(error, options);
+  } catch (importError) {
+    console.warn("Failed to show API error toast:", importError);
+  }
+}
+
+export async function showValidationErrorToast(
+  fieldName: string,
+  errorMessage: string,
+  options?: import("./toast-utils").ToastOptions
+) {
+  if (typeof window === "undefined") return;
+
+  try {
+    const { showValidationErrorToast } = await import("./toast-utils");
+    return showValidationErrorToast(fieldName, errorMessage, options);
+  } catch (importError) {
+    console.warn("Failed to show validation error toast:", importError);
+  }
+}
+
+export async function showSuccessToast(
+  message: string,
+  options?: import("./toast-utils").ToastOptions
+) {
+  if (typeof window === "undefined") return;
+
+  try {
+    const { showSuccessToast } = await import("./toast-utils");
+    return showSuccessToast(message, options);
+  } catch (importError) {
+    console.warn("Failed to show success toast:", importError);
+  }
+}
+
+// Export error boundary integration
+export function createErrorBoundaryWithToast(
+  options: {
+    showToast?: boolean;
+    toastOptions?: import("./toast-utils").ErrorToastOptions;
+  } = {}
+) {
+  return async (error: Error, errorInfo: any) => {
+    const enhancedError =
+      error instanceof EnhancedError
+        ? error
+        : new EnhancedError(
+            error.message,
+            ERROR_CODES.INTERNAL_ERROR,
+            ERROR_CATEGORIES.SYSTEM,
+            ERROR_SEVERITY.HIGH,
+            {
+              context: { componentStack: errorInfo.componentStack },
+              retryable: false,
+            }
+          );
+
+    if (options.showToast) {
+      await ErrorLogger.getInstance().log(enhancedError, {
+        showToast: true,
+        toastOptions: options.toastOptions,
+      });
+    }
+
+    return enhancedError;
+  };
+}
