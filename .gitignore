@@ -61,4 +61,10 @@ logs
 # Task files
 # tasks.json
 # tasks/ 
+
+# MCP and sensitive configuration
 .cursor/mcp.json
+.mcp.local.json
+.env.local
+.env.production
+.env.development
