@@ -4,6 +4,7 @@ import "./globals.css";
 import { QueryProviders } from "./providers";
 import { AppLayout } from "@/components/layout/app-layout";
 import { Toaster } from "@/components/ui/toaster";
+import { OfflineAware } from "@/components/ui/offline-indicator";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -21,7 +22,9 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <QueryProviders>
-          <AppLayout>{children}</AppLayout>
+          <OfflineAware>
+            <AppLayout>{children}</AppLayout>
+          </OfflineAware>
           <Toaster />
         </QueryProviders>
       </body>

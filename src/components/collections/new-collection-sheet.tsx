@@ -1,71 +1,199 @@
 "use client";
 
 import { useState } from "react";
-import { useCreateCollection } from "@/hooks/api/useCollections";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
+import { Form } from "@/components/ui/form";
+import {
+  EnhancedTextInput,
+  EnhancedTextarea,
+  FormSubmitButton,
+  FormValidationSummary,
+} from "@/components/ui/enhanced-form-fields";
+import {
+  formSchemas,
+  CollectionFormData,
+  useFormValidation,
+} from "@/lib/form-validation";
+import { ApiClient } from "@/lib/api-client";
+import { Plus, FolderPlus } from "lucide-react";
 
 interface NewCollectionSheetProps {
-  onSuccess: () => void;
+  onCollectionCreated?: (collection: any) => void;
+  trigger?: React.ReactNode;
 }
 
-export function NewCollectionSheet({ onSuccess }: NewCollectionSheetProps) {
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
-  const createCollectionMutation = useCreateCollection();
+export function NewCollectionSheet({
+  onCollectionCreated,
+  trigger,
+}: NewCollectionSheetProps) {
+  const [open, setOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const apiClient = new ApiClient();
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  // Form setup with validation
+  const form = useForm<CollectionFormData>({
+    resolver: zodResolver(formSchemas.collection),
+    defaultValues: {
+      name: "",
+      description: "",
+    },
+    mode: "onChange", // Validate on change for better UX
+  });
+
+  // Enhanced form validation with error handling
+  const { createSubmitHandler, formState } = useFormValidation(form, {
+    showToastOnError: true,
+    showToastOnSuccess: true,
+    successMessage: "Collection created successfully!",
+    logErrors: true,
+    validateOnChange: true,
+    validateOnBlur: true,
+  });
+
+  // Submit handler with comprehensive error handling
+  const onSubmit = createSubmitHandler(async (data: CollectionFormData) => {
+    setIsSubmitting(true);
+
     try {
-      await createCollectionMutation.mutateAsync({ name, description });
-      onSuccess();
+      // Create collection via API
+      const response = await apiClient.post("/api/collections", data);
+
+      const newCollection = response.data;
+
+      // Notify parent component
+      onCollectionCreated?.(newCollection);
+
+      // Reset form and close sheet
+      form.reset();
+      setOpen(false);
+
+      return newCollection;
     } catch (error) {
-      console.error("Failed to create collection:", error);
-      // TODO: Add user-facing error feedback
+      // Error is automatically handled by the form validation system
+      throw error;
+    } finally {
+      setIsSubmitting(false);
+    }
+  });
+
+  // Reset form when sheet opens
+  const handleOpenChange = (newOpen: boolean) => {
+    setOpen(newOpen);
+    if (newOpen) {
+      form.reset();
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="space-y-2">
-        <label
-          htmlFor="name"
-          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-        >
-          Name
-        </label>
-        <input
-          id="name"
-          value={name}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-            setName(e.target.value)
-          }
-          placeholder="e.g., Financial Reports"
-          required
-          className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-        />
-      </div>
-      <div className="space-y-2">
-        <label
-          htmlFor="description"
-          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-        >
-          Description (optional)
-        </label>
-        <textarea
-          id="description"
-          value={description}
-          onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
-            setDescription(e.target.value)
-          }
-          placeholder="A brief description of the collection's purpose"
-          className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-        />
-      </div>
-      <Button type="submit" disabled={createCollectionMutation.isPending}>
-        {createCollectionMutation.isPending
-          ? "Creating..."
-          : "Create Collection"}
-      </Button>
-    </form>
+    <Sheet open={open} onOpenChange={handleOpenChange}>
+      <SheetTrigger asChild>
+        {trigger || (
+          <Button>
+            <Plus className="mr-2 h-4 w-4" />
+            New Collection
+          </Button>
+        )}
+      </SheetTrigger>
+      <SheetContent className="sm:max-w-md">
+        <SheetHeader>
+          <SheetTitle className="flex items-center gap-2">
+            <FolderPlus className="h-5 w-5" />
+            Create New Collection
+          </SheetTitle>
+          <SheetDescription>
+            Create a new collection to organize your documents and content.
+            Collections help you group related items together.
+          </SheetDescription>
+        </SheetHeader>
+
+        <Form {...form}>
+          <form onSubmit={onSubmit} className="space-y-6 mt-6">
+            {/* Form validation summary */}
+            <FormValidationSummary
+              errors={form.formState.errors}
+              title="Please fix the following issues:"
+            />
+
+            {/* Collection name field */}
+            <EnhancedTextInput
+              control={form.control}
+              name="name"
+              label="Collection Name"
+              placeholder="Enter collection name..."
+              required
+              maxLength={100}
+              showCharacterCount
+              startIcon={<FolderPlus className="h-4 w-4" />}
+              description="A unique name for your collection (2-100 characters)"
+            />
+
+            {/* Collection description field */}
+            <EnhancedTextarea
+              control={form.control}
+              name="description"
+              label="Description"
+              placeholder="Describe what this collection contains..."
+              rows={4}
+              maxLength={500}
+              showCharacterCount
+              description="Optional description to help others understand the purpose of this collection"
+            />
+
+            {/* Form actions */}
+            <div className="flex justify-end gap-3 pt-4 border-t">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setOpen(false)}
+                disabled={isSubmitting}
+              >
+                Cancel
+              </Button>
+              <FormSubmitButton
+                isLoading={isSubmitting}
+                disabled={!form.formState.isValid}
+                loadingText="Creating..."
+              >
+                Create Collection
+              </FormSubmitButton>
+            </div>
+
+            {/* Form debugging info (development only) */}
+            {process.env.NODE_ENV === "development" && (
+              <details className="text-xs text-muted-foreground border rounded p-3">
+                <summary className="cursor-pointer font-medium">
+                  Form Debug Info
+                </summary>
+                <pre className="mt-2 whitespace-pre-wrap">
+                  {JSON.stringify(
+                    {
+                      values: form.getValues(),
+                      errors: form.formState.errors,
+                      isValid: form.formState.isValid,
+                      isDirty: form.formState.isDirty,
+                      isSubmitting: form.formState.isSubmitting,
+                      touchedFields: form.formState.touchedFields,
+                      dirtyFields: form.formState.dirtyFields,
+                    },
+                    null,
+                    2
+                  )}
+                </pre>
+              </details>
+            )}
+          </form>
+        </Form>
+      </SheetContent>
+    </Sheet>
   );
 }
