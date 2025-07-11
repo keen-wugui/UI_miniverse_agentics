@@ -6,6 +6,7 @@ import {
   ERROR_SEVERITY,
   handleApiError,
   ErrorReporter,
+  errorReporter,
 } from "./error-handling";
 import {
   showErrorToast,
@@ -255,7 +256,7 @@ export class EnhancedApiErrorHandler {
 
   constructor() {
     this.networkMonitor = NetworkStatusMonitor.getInstance();
-    this.errorReporter = ErrorReporter.getInstance();
+    this.errorReporter = errorReporter;
     this.toastHandler = createErrorToastHandler();
   }
 

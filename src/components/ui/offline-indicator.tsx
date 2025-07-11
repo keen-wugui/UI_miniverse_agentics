@@ -150,7 +150,7 @@ export function OfflineBanner({
     <Alert className={cn("border-orange-200 bg-orange-50", className)}>
       <AlertTriangle className="h-4 w-4" />
       <AlertTitle className="flex items-center justify-between">
-        <span>You're currently offline</span>
+        <span>You&apos;re currently offline</span>
         {showRetryButton && (
           <Button
             variant="outline"
@@ -217,9 +217,9 @@ export function OfflineFallback({
         <div className="mx-auto mb-4 h-12 w-12 rounded-full bg-orange-100 flex items-center justify-center">
           <WifiOff className="h-6 w-6 text-orange-600" />
         </div>
-        <CardTitle>You're offline</CardTitle>
+        <CardTitle>You&apos;re offline</CardTitle>
         <CardDescription>
-          This content isn't available offline. Please check your connection and
+          This content isn&apos;t available offline. Please check your connection and
           try again.
         </CardDescription>
       </CardHeader>

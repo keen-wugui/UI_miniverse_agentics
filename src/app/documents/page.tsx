@@ -11,7 +11,8 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useNavigation } from "@/contexts/navigation-context";
-import { FileText } from "lucide-react";
+import { FileText, Upload } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { DocumentManagement } from "@/components/documents/document-management";
 
 export default function DocumentsPage() {
@@ -40,6 +41,15 @@ export default function DocumentsPage() {
             Manage your documents with advanced search, filtering, and
             processing capabilities.
           </p>
+        </div>
+        <div className="flex gap-3">
+          <Button
+            variant="outline"
+            onClick={() => router.push("/documents/upload")}
+          >
+            <Upload className="mr-2 h-4 w-4" />
+            Upload Documents
+          </Button>
         </div>
       </div>
 

@@ -33,7 +33,7 @@ export function CollectionManagement() {
         <div>
           <h2 className="text-2xl font-bold tracking-tight">Collections</h2>
           <p className="text-muted-foreground">
-            {collectionsData?.pagination.total ?? 0} collections
+            {collectionsData?.pagination?.total ?? 0} collections
           </p>
         </div>
         <Button onClick={() => setIsSheetOpen(true)}>
@@ -46,18 +46,24 @@ export function CollectionManagement() {
         <div>Loading...</div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {collectionsData?.data.map((collection) => (
-            <Card key={collection.id}>
-              <CardHeader>
-                <CardTitle>{collection.name}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground">
-                  {collection.documentCount} documents
-                </p>
-              </CardContent>
-            </Card>
-          ))}
+          {collectionsData?.data?.length > 0 ? (
+            collectionsData.data.map((collection) => (
+              <Card key={collection.id}>
+                <CardHeader>
+                  <CardTitle>{collection.name}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground">
+                    {collection.documentCount} documents
+                  </p>
+                </CardContent>
+              </Card>
+            ))
+          ) : (
+            <div className="col-span-full text-center py-8">
+              <p className="text-muted-foreground">No collections found</p>
+            </div>
+          )}
         </div>
       )}
       <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
@@ -69,7 +75,7 @@ export function CollectionManagement() {
             </SheetDescription>
           </SheetHeader>
           <div className="mt-8">
-            <NewCollectionSheet onSuccess={handleSuccess} />
+            <NewCollectionSheet onCollectionCreated={handleSuccess} />
           </div>
         </SheetContent>
       </Sheet>

@@ -53,12 +53,12 @@ export class ErrorBoundary extends React.Component<
       error instanceof EnhancedError ? error : handleApiError(error);
 
     // Set error info in state
-    this.setState({ errorInfo: errorInfo.componentStack });
+    this.setState({ errorInfo: errorInfo.componentStack || undefined });
 
     // Report error if enabled
     if (this.props.reportErrors !== false) {
       errorReporter.report(enhancedError, {
-        componentStack: errorInfo.componentStack,
+        componentStack: errorInfo.componentStack || undefined,
         errorBoundary: true,
       });
     }

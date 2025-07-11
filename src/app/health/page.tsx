@@ -120,17 +120,31 @@ export default function HealthDashboard() {
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Database Response Time</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <PerformanceChart data={[]} title="" dataKey="value" unit="ms" />
-          <p className="text-center text-sm text-muted-foreground mt-4">
-            Note: Time-series data is not yet available from the API.
-          </p>
-        </CardContent>
-      </Card>
+      <div className="space-y-6">
+        <PerformanceChart 
+          data={[]} 
+          title="Database Response Time" 
+          dataKey="value" 
+          unit="ms"
+          threshold={{ warning: 100, error: 200 }}
+        />
+        <PerformanceChart 
+          data={[]} 
+          title="System CPU Usage" 
+          dataKey="value" 
+          unit="%" 
+          type="area"
+          threshold={{ warning: 70, error: 90 }}
+        />
+        <PerformanceChart 
+          data={[]} 
+          title="Memory Usage" 
+          dataKey="value" 
+          unit="MB" 
+          type="bar"
+          threshold={{ warning: 1000, error: 1500 }}
+        />
+      </div>
     </div>
   );
 }
