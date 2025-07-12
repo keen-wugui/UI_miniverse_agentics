@@ -1,5 +1,6 @@
 import { ApiClientError } from "./api-client";
 import { apiConfig } from "./api-client";
+import { logger, LogData } from "@/lib/logger";
 
 // Enhanced error types
 export interface AppError extends Error {
@@ -379,15 +380,22 @@ export class ErrorReporter {
           body: JSON.stringify({ reports: this.queue }),
         });
       } else {
-        // Log to console in development
+        // Log using structured logger
         this.queue.forEach((report) => {
-          console.error("[Error Report]", report);
+          logger.logError(report.error, {
+            correlationId: report.error.requestId,
+            userAgent: report.userAgent,
+            url: report.url,
+            userId: report.userId,
+            sessionId: report.sessionId,
+            metadata: report.metadata,
+          });
         });
       }
 
       this.queue = [];
     } catch (reportingError) {
-      console.error("Failed to report errors:", reportingError);
+      logger.error("Failed to report errors", { error: reportingError });
     } finally {
       this.reporting = false;
     }
@@ -539,7 +547,7 @@ export class ErrorLogger {
         const toastUtils = await import("./toast-utils");
         this.toastManager = toastUtils.createErrorToastHandler();
       } catch (error) {
-        console.warn("Failed to initialize toast manager:", error);
+        logger.warn("Failed to initialize toast manager", { error });
       }
     }
   }
@@ -551,19 +559,68 @@ export class ErrorLogger {
 
     const formattedError = this.formatErrorForLogging(error);
 
-    // Log to console based on severity
+    // Log using structured logger
+    const logData = {
+      correlationId: error.requestId,
+      ...options.context,
+    };
+
     switch (error.severity) {
       case ERROR_SEVERITY.CRITICAL:
-        console.error("🚨 CRITICAL ERROR:", formattedError);
+        logger.fatal(`🚨 CRITICAL ERROR: ${error.message}`, { 
+          ...logData, 
+          error: {
+            name: error.name,
+            message: error.message,
+            stack: error.stack,
+            code: error.code,
+            severity: error.severity,
+            category: error.category,
+          },
+          context: { errorCategory: error.category }
+        });
         break;
       case ERROR_SEVERITY.HIGH:
-        console.error("🔴 HIGH SEVERITY ERROR:", formattedError);
+        logger.error(`🔴 HIGH SEVERITY ERROR: ${error.message}`, { 
+          ...logData, 
+          error: {
+            name: error.name,
+            message: error.message,
+            stack: error.stack,
+            code: error.code,
+            severity: error.severity,
+            category: error.category,
+          },
+          context: { errorCategory: error.category }
+        });
         break;
       case ERROR_SEVERITY.MEDIUM:
-        console.warn("🟡 MEDIUM SEVERITY ERROR:", formattedError);
+        logger.warn(`🟡 MEDIUM SEVERITY ERROR: ${error.message}`, { 
+          ...logData, 
+          error: {
+            name: error.name,
+            message: error.message,
+            stack: error.stack,
+            code: error.code,
+            severity: error.severity,
+            category: error.category,
+          },
+          context: { errorCategory: error.category }
+        });
         break;
       case ERROR_SEVERITY.LOW:
-        console.info("ℹ️ LOW SEVERITY ERROR:", formattedError);
+        logger.info(`ℹ️ LOW SEVERITY ERROR: ${error.message}`, { 
+          ...logData, 
+          error: {
+            name: error.name,
+            message: error.message,
+            stack: error.stack,
+            code: error.code,
+            severity: error.severity,
+            category: error.category,
+          },
+          context: { errorCategory: error.category }
+        });
         break;
     }
 
@@ -576,7 +633,7 @@ export class ErrorLogger {
       try {
         this.toastManager.showError(error, options.toastOptions);
       } catch (toastError) {
-        console.warn("Failed to show error toast:", toastError);
+        logger.warn("Failed to show error toast", { error: toastError });
       }
     }
 
@@ -682,7 +739,7 @@ export async function showApiErrorToast(
     const { showApiErrorToast } = await import("./toast-utils");
     return showApiErrorToast(error, options);
   } catch (importError) {
-    console.warn("Failed to show API error toast:", importError);
+    logger.warn("Failed to show API error toast", { error: importError });
   }
 }
 
@@ -697,7 +754,7 @@ export async function showValidationErrorToast(
     const { showValidationErrorToast } = await import("./toast-utils");
     return showValidationErrorToast(fieldName, errorMessage, options);
   } catch (importError) {
-    console.warn("Failed to show validation error toast:", importError);
+    logger.warn("Failed to show validation error toast", { error: importError });
   }
 }
 
@@ -711,7 +768,7 @@ export async function showSuccessToast(
     const { showSuccessToast } = await import("./toast-utils");
     return showSuccessToast(message, options);
   } catch (importError) {
-    console.warn("Failed to show success toast:", importError);
+    logger.warn("Failed to show success toast", { error: importError });
   }
 }
 

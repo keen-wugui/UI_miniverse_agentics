@@ -14,6 +14,7 @@ import {
   showInfoToast,
   createErrorToastHandler,
 } from "./toast-utils";
+import { logger } from "@/lib/logger";
 import { ApiClientError } from "./api-client";
 
 // Enhanced API error types
@@ -86,6 +87,7 @@ export class NetworkStatusMonitor {
   private handleOnline(): void {
     this.currentStatus.isOnline = true;
     this.notifyListeners();
+    logger.info("Network connection restored", { networkStatus: this.currentStatus });
     showInfoToast("You're back online!", {
       description: "Your connection has been restored.",
     });
@@ -94,6 +96,7 @@ export class NetworkStatusMonitor {
   private handleOffline(): void {
     this.currentStatus.isOnline = false;
     this.notifyListeners();
+    logger.warn("Network connection lost", { networkStatus: this.currentStatus });
     showWarningToast("You're offline", {
       description: "Some features may not work until connection is restored.",
     });
@@ -306,9 +309,12 @@ export class EnhancedApiErrorHandler {
 
     // Log error if configured
     if (logError) {
-      console.error("[Enhanced API Error]", {
+      logger.logApiError({
+        method: context?.method || "UNKNOWN",
+        url: context?.endpoint || "UNKNOWN",
+        statusCode: enhancedError.context?.status,
+        correlationId: context?.requestId,
         error: enhancedError,
-        context,
         networkStatus,
       });
     }

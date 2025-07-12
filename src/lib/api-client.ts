@@ -1,4 +1,5 @@
 import apiConfig from "@/config/api-config.json";
+import { logger, ApiLogData } from "@/lib/logger";
 
 // Types for the API client
 export interface ApiClientConfig {
@@ -156,30 +157,57 @@ export class ApiClient {
   }
 
   // Log request (if enabled)
-  private logRequest(url: string, options: RequestInit): void {
+  private logRequest(url: string, options: RequestInit, correlationId?: string): void {
     if (apiConfig.logging.enabled && apiConfig.logging.logRequests) {
-      console.log(`[API Request] ${options.method || "GET"} ${url}`, {
-        headers: options.headers,
-        body: options.body,
-      });
+      const logData: ApiLogData = {
+        method: options.method || "GET",
+        url,
+        correlationId,
+        headers: this.sanitizeHeaders(options.headers as Record<string, string>),
+        requestSize: this.getRequestSize(options.body),
+      };
+      logger.logApiRequest(logData);
     }
   }
 
   // Log response (if enabled)
-  private logResponse(url: string, response: Response, data?: any): void {
+  private logResponse(
+    url: string, 
+    response: Response, 
+    data?: any, 
+    duration?: number,
+    correlationId?: string,
+    method?: string
+  ): void {
     if (apiConfig.logging.enabled && apiConfig.logging.logResponses) {
-      console.log(`[API Response] ${response.status} ${url}`, {
-        status: response.status,
-        statusText: response.statusText,
-        data,
-      });
+      const logData: ApiLogData = {
+        method: method || "GET",
+        url,
+        statusCode: response.status,
+        duration,
+        correlationId,
+        responseSize: this.getResponseSize(data),
+      };
+      logger.logApiResponse(logData);
     }
   }
 
   // Log error (if enabled)
-  private logError(error: ApiClientError): void {
+  private logError(
+    error: ApiClientError, 
+    url?: string, 
+    method?: string, 
+    correlationId?: string
+  ): void {
     if (apiConfig.logging.enabled && apiConfig.logging.logErrors) {
-      console.error("[API Error]", error);
+      const logData: ApiLogData & { error: any } = {
+        method: method || "UNKNOWN",
+        url: url || "UNKNOWN",
+        statusCode: error.status,
+        correlationId,
+        error,
+      };
+      logger.logApiError(logData);
     }
   }
 
@@ -188,6 +216,8 @@ export class ApiClient {
     url: string,
     options: ApiRequestOptions = {}
   ): Promise<ApiResponse<T>> {
+    const correlationId = logger.generateCorrelationId();
+    const startTime = Date.now();
     const {
       method = "GET",
       headers,
@@ -214,7 +244,7 @@ export class ApiClient {
         };
 
         // Log the request
-        this.logRequest(url, fetchOptions);
+        this.logRequest(url, fetchOptions, correlationId);
 
         const response = await fetch(url, fetchOptions);
         clearTimeout(timeoutId);
@@ -230,7 +260,8 @@ export class ApiClient {
         }
 
         // Log the response
-        this.logResponse(url, response, data);
+        const duration = Date.now() - startTime;
+        this.logResponse(url, response, data, duration, correlationId, method);
 
         // Handle successful response
         if (response.ok) {
@@ -314,7 +345,7 @@ export class ApiClient {
 
     // Log the final error
     if (lastError) {
-      this.logError(lastError);
+      this.logError(lastError, url, method, correlationId);
       throw lastError;
     }
 
@@ -411,6 +442,38 @@ export class ApiClient {
       body: formData,
       isFormData: true,
     });
+  }
+
+  // Helper methods for logging
+  private sanitizeHeaders(headers?: Record<string, string>): Record<string, string> {
+    if (!headers) return {};
+    
+    const sanitized = { ...headers };
+    const sensitiveHeaders = ['authorization', 'cookie', 'x-api-key', 'x-auth-token'];
+    
+    sensitiveHeaders.forEach(header => {
+      if (sanitized[header]) {
+        sanitized[header] = '[REDACTED]';
+      }
+      if (sanitized[header.toLowerCase()]) {
+        sanitized[header.toLowerCase()] = '[REDACTED]';
+      }
+    });
+    
+    return sanitized;
+  }
+
+  private getRequestSize(body?: any): number | undefined {
+    if (!body) return undefined;
+    if (typeof body === 'string') return body.length;
+    if (body instanceof FormData) return undefined; // Can't easily measure FormData size
+    return JSON.stringify(body).length;
+  }
+
+  private getResponseSize(data?: any): number | undefined {
+    if (!data) return undefined;
+    if (typeof data === 'string') return data.length;
+    return JSON.stringify(data).length;
   }
 }
 

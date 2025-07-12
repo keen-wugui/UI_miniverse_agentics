@@ -4,6 +4,7 @@ import type {
   UseMutationOptions,
 } from "@tanstack/react-query";
 import apiConfig from "@/config/api-config.json";
+import { logger } from "@/lib/logger";
 
 // Cache configuration types
 export interface CacheConfig {
@@ -316,7 +317,7 @@ export const warmCache = async (queryClient: QueryClient) => {
       cachePrefetch.prefetchBusinessSummary(queryClient),
     ]);
   } catch (error) {
-    console.warn("Cache warming failed:", error);
+    logger.warn("Cache warming failed", { error });
   }
 };
 
@@ -351,26 +352,27 @@ export const cacheDebug = {
   // Log cache status
   logCacheStatus: (queryClient: QueryClient) => {
     const cache = queryClient.getQueryCache();
-    console.log("Query Cache Status:", {
+    const status = {
       totalQueries: cache.getAll().length,
       stalQueries: cache.getAll().filter((query) => query.isStale()).length,
       freshQueries: cache.getAll().filter((query) => !query.isStale()).length,
       errorQueries: cache
         .getAll()
         .filter((query) => query.state.status === "error").length,
-    });
+    };
+    logger.debug("Query Cache Status", { cacheStatus: status });
   },
 
   // Clear all cache
   clearAllCache: (queryClient: QueryClient) => {
     queryClient.clear();
-    console.log("All cache cleared");
+    logger.info("All cache cleared");
   },
 
   // Log specific query status
   logQueryStatus: (queryClient: QueryClient, queryKey: any[]) => {
     const query = queryClient.getQueryState(queryKey);
-    console.log("Query Status:", { queryKey, state: query });
+    logger.debug("Query Status", { queryKey, state: query });
   },
 };
 
