@@ -92,6 +92,10 @@ export class LogFileManager {
 
   // Format date according to pattern
   private formatDate(date: Date, pattern: string): string {
+    if (!date || !(date instanceof Date) || isNaN(date.getTime())) {
+      date = new Date(); // Fallback to current date
+    }
+    
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const day = String(date.getDate()).padStart(2, '0');

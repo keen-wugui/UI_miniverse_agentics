@@ -14,11 +14,16 @@ import {
   ErrorReporter,
   handleApiError,
 } from "@/lib/error-handling";
-import { logger } from "@/lib/logger";
+// Logger is dynamically imported to avoid SSR issues
 
 // Enable MSW in development
 async function enableMocking() {
   if (process.env.NODE_ENV !== "development") {
+    return;
+  }
+
+  // Only enable MSW in browser environment
+  if (typeof window === "undefined") {
     return;
   }
 
@@ -37,8 +42,6 @@ async function enableMocking() {
   });
 }
 
-// Start MSW before anything else
-enableMocking();
 
 // Global error reporter instance
 const errorReporter = new ErrorReporter({
@@ -84,12 +87,22 @@ const createQueryClient = () => {
             queryHash: query.queryHash,
           });
 
-          // Log error for debugging
-          logger.error("Query error occurred", {
-            queryKey: query.queryKey,
-            error: enhancedError,
-            context: { queryContext: "react-query" },
-          });
+          // Log error for debugging (dynamic import to avoid SSR issues)
+          if (typeof window !== "undefined") {
+            import("@/lib/logger").then(({ logger }) => {
+              logger.error("Query error occurred", {
+                queryKey: query.queryKey,
+                error: enhancedError,
+                context: { queryContext: "react-query" },
+              });
+            }).catch(() => {
+              console.error("Query error occurred:", {
+                queryKey: query.queryKey,
+                error: enhancedError,
+                context: { queryContext: "react-query" },
+              });
+            });
+          }
 
           // Always throw to allow components to handle errors
           return true;
@@ -140,10 +153,18 @@ const createQueryClient = () => {
 export function QueryProviders({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(() => createQueryClient());
 
+  // Initialize MSW on mount (client-side only)
+  useEffect(() => {
+    enableMocking().catch(console.error);
+  }, []);
+
   // Initialize logger on mount (client-side logging only)
   useEffect(() => {
     const initializeLogger = async () => {
       try {
+        // Dynamically import logger to avoid SSR issues
+        const { logger } = await import("@/lib/logger");
+        
         // Wait for logger initialization
         await logger.waitForInitialization();
         
@@ -175,11 +196,27 @@ export function QueryProviders({ children }: { children: React.ReactNode }) {
         // Warm the cache with critical data
         await warmCache(queryClient);
 
-        logger.info("Cache warming completed", {
-          queryCount: queryClient.getQueryCache().getAll().length,
-        });
+        // Log cache warming success (dynamic import to avoid SSR issues)
+        if (typeof window !== "undefined") {
+          import("@/lib/logger").then(({ logger }) => {
+            logger.info("Cache warming completed", {
+              queryCount: queryClient.getQueryCache().getAll().length,
+            });
+          }).catch(() => {
+            console.log("Cache warming completed", {
+              queryCount: queryClient.getQueryCache().getAll().length,
+            });
+          });
+        }
       } catch (error) {
-        logger.error("Cache warming failed", { error: error as Error });
+        // Log cache warming error (dynamic import to avoid SSR issues)  
+        if (typeof window !== "undefined") {
+          import("@/lib/logger").then(({ logger }) => {
+            logger.error("Cache warming failed", { error: error as Error });
+          }).catch(() => {
+            console.error("Cache warming failed", { error: error as Error });
+          });
+        }
         errorReporter.report(handleApiError(error), {
           type: "cache_warming_error",
         });
