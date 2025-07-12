@@ -54,7 +54,7 @@ export const loggingConfig: EnvironmentLoggingConfig = {
   development: {
     level: "debug",
     enableConsole: true,
-    enableFile: false,
+    enableFile: true,
     enablePretty: true,
     redactPaths: REDACT_PATHS,
     service: "ui-miniverse-agentics",

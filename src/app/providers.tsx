@@ -14,6 +14,7 @@ import {
   ErrorReporter,
   handleApiError,
 } from "@/lib/error-handling";
+import { logger } from "@/lib/logger";
 
 // Enable MSW in development
 async function enableMocking() {
@@ -83,13 +84,12 @@ const createQueryClient = () => {
             queryHash: query.queryHash,
           });
 
-          // Log error for debugging in development
-          if (process.env.NODE_ENV === "development") {
-            console.error("Query error:", {
-              queryKey: query.queryKey,
-              error: enhancedError,
-            });
-          }
+          // Log error for debugging
+          logger.error("Query error occurred", {
+            queryKey: query.queryKey,
+            error: enhancedError,
+            context: { queryContext: "react-query" },
+          });
 
           // Always throw to allow components to handle errors
           return true;
@@ -140,6 +140,31 @@ const createQueryClient = () => {
 export function QueryProviders({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(() => createQueryClient());
 
+  // Initialize logger on mount
+  useEffect(() => {
+    const initializeLogger = async () => {
+      try {
+        // Wait for logger initialization (file logging setup)
+        await logger.waitForInitialization();
+        
+        // Log application startup
+        logger.info("Application started", {
+          environment: process.env.NODE_ENV,
+          timestamp: new Date().toISOString(),
+        });
+
+        if (process.env.NODE_ENV === "development") {
+          const stats = await logger.getLogStats();
+          logger.debug("Logger initialized", { stats });
+        }
+      } catch (error) {
+        console.error("Logger initialization failed:", error);
+      }
+    };
+
+    initializeLogger();
+  }, []);
+
   // Cache warming on mount
   useEffect(() => {
     const initializeCache = async () => {
@@ -147,12 +172,11 @@ export function QueryProviders({ children }: { children: React.ReactNode }) {
         // Warm the cache with critical data
         await warmCache(queryClient);
 
-        if (process.env.NODE_ENV === "development") {
-          console.log("Cache warming completed");
-          cacheDebug.logCacheStatus(queryClient);
-        }
+        logger.info("Cache warming completed", {
+          queryCount: queryClient.getQueryCache().getAll().length,
+        });
       } catch (error) {
-        console.warn("Cache warming failed:", error);
+        logger.error("Cache warming failed", { error });
         errorReporter.report(handleApiError(error), {
           type: "cache_warming_error",
         });
