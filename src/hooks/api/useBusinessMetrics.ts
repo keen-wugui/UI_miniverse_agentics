@@ -121,26 +121,10 @@ export const useCreateKPI = () => {
     },
     retry: typeof cacheConfig.retry === "number" ? cacheConfig.retry : 3,
     onSuccess: () => {
-      // Invalidate KPI lists to show the new KPI
-      queryClient.invalidateQueries({
-        predicate: (query) => {
-          const queryKey = query.queryKey;
-          return (
-            queryKey.includes("businessMetrics") && queryKey.includes("kpis")
-          );
-        },
-      });
-
-      // Invalidate metrics overview to update statistics
-      queryClient.invalidateQueries({
-        predicate: (query) => {
-          const queryKey = query.queryKey;
-          return (
-            queryKey.includes("businessMetrics") &&
-            queryKey.includes("overview")
-          );
-        },
-      });
+      // Invalidate specific KPI queries using cache invalidation utilities
+      cacheInvalidation.invalidateBusinessMetrics(queryClient);
+      queryClient.invalidateQueries({ queryKey: queryKeys.businessMetrics.kpis() });
+      queryClient.invalidateQueries({ queryKey: queryKeys.businessMetrics.overview() });
     },
   });
 };
@@ -170,13 +154,10 @@ export const useUpdateKPI = () => {
     },
     retry: typeof cacheConfig.retry === "number" ? cacheConfig.retry : 3,
     onSuccess: () => {
-      // Invalidate all KPI and metrics related queries
-      queryClient.invalidateQueries({
-        predicate: (query) => {
-          const queryKey = query.queryKey;
-          return queryKey.includes("businessMetrics");
-        },
-      });
+      // Invalidate specific business metrics queries
+      cacheInvalidation.invalidateBusinessMetrics(queryClient);
+      queryClient.invalidateQueries({ queryKey: queryKeys.businessMetrics.kpis() });
+      queryClient.invalidateQueries({ queryKey: queryKeys.businessMetrics.overview() });
     },
   });
 };
@@ -201,13 +182,10 @@ export const useDeleteKPI = () => {
     },
     retry: typeof cacheConfig.retry === "number" ? cacheConfig.retry : 3,
     onSuccess: () => {
-      // Invalidate all business metrics queries
-      queryClient.invalidateQueries({
-        predicate: (query) => {
-          const queryKey = query.queryKey;
-          return queryKey.includes("businessMetrics");
-        },
-      });
+      // Invalidate specific business metrics queries  
+      cacheInvalidation.invalidateBusinessMetrics(queryClient);
+      queryClient.invalidateQueries({ queryKey: queryKeys.businessMetrics.kpis() });
+      queryClient.invalidateQueries({ queryKey: queryKeys.businessMetrics.overview() });
     },
   });
 };

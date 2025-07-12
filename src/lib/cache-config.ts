@@ -65,11 +65,11 @@ export const queryKeys = {
   documents: {
     all: ["documents"] as const,
     lists: () => [...queryKeys.documents.all, "list"] as const,
-    list: (params?: any) => [...queryKeys.documents.lists(), params] as const,
+    list: (params?: any) => [...queryKeys.documents.lists(), params ? JSON.stringify(params) : null] as const,
     details: () => [...queryKeys.documents.all, "detail"] as const,
     detail: (id: string) => [...queryKeys.documents.details(), id] as const,
     search: (params: any) =>
-      [...queryKeys.documents.all, "search", params] as const,
+      [...queryKeys.documents.all, "search", JSON.stringify(params)] as const,
     extraction: (id: string) =>
       [...queryKeys.documents.detail(id), "extraction"] as const,
   },
@@ -78,13 +78,13 @@ export const queryKeys = {
   collections: {
     all: ["collections"] as const,
     lists: () => [...queryKeys.collections.all, "list"] as const,
-    list: (params?: any) => [...queryKeys.collections.lists(), params] as const,
+    list: (params?: any) => [...queryKeys.collections.lists(), params ? JSON.stringify(params) : null] as const,
     details: () => [...queryKeys.collections.all, "detail"] as const,
     detail: (id: string) => [...queryKeys.collections.details(), id] as const,
     search: (params: any) =>
-      [...queryKeys.collections.all, "search", params] as const,
+      [...queryKeys.collections.all, "search", JSON.stringify(params)] as const,
     documents: (id: string, params?: any) =>
-      [...queryKeys.collections.detail(id), "documents", params] as const,
+      [...queryKeys.collections.detail(id), "documents", params ? JSON.stringify(params) : null] as const,
     stats: (id: string) =>
       [...queryKeys.collections.detail(id), "stats"] as const,
   },
@@ -93,7 +93,7 @@ export const queryKeys = {
   workflows: {
     all: ["workflows"] as const,
     lists: () => [...queryKeys.workflows.all, "list"] as const,
-    list: (params?: any) => [...queryKeys.workflows.lists(), params] as const,
+    list: (params?: any) => [...queryKeys.workflows.lists(), params ? JSON.stringify(params) : null] as const,
     details: () => [...queryKeys.workflows.all, "detail"] as const,
     detail: (id: string) => [...queryKeys.workflows.details(), id] as const,
     executions: {
@@ -118,10 +118,10 @@ export const queryKeys = {
     all: ["rag"] as const,
     config: () => [...queryKeys.rag.all, "config"] as const,
     configuration: () => [...queryKeys.rag.all, "configuration"] as const,
-    query: (params: any) => [...queryKeys.rag.all, "query", params] as const,
+    query: (params: any) => [...queryKeys.rag.all, "query", JSON.stringify(params)] as const,
     generate: (params: any) =>
-      [...queryKeys.rag.all, "generate", params] as const,
-    index: (params?: any) => [...queryKeys.rag.all, "index", params] as const,
+      [...queryKeys.rag.all, "generate", JSON.stringify(params)] as const,
+    index: (params?: any) => [...queryKeys.rag.all, "index", params ? JSON.stringify(params) : null] as const,
     indexStatus: (indexId: string) =>
       [...queryKeys.rag.all, "index", indexId, "status"] as const,
     sources: (queryId: string) =>
@@ -140,7 +140,7 @@ export const queryKeys = {
       [...queryKeys.businessMetrics.all, "overview", filters] as const,
     summary: () => [...queryKeys.businessMetrics.all, "summary"] as const,
     kpis: (params?: any) =>
-      [...queryKeys.businessMetrics.all, "kpis", params] as const,
+      [...queryKeys.businessMetrics.all, "kpis", params ? JSON.stringify(params) : null] as const,
     report: (reportRequest: any) =>
       [...queryKeys.businessMetrics.all, "report", reportRequest] as const,
     realtime: (filters?: any) =>

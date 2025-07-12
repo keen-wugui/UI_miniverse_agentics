@@ -1,24 +1,12 @@
 'use client'
 
-import { useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { useNavigation } from '@/contexts/navigation-context'
-import { Settings, User, Bell, Palette, Key, Shield } from 'lucide-react'
+import { Settings, User, Bell, Palette, Key } from 'lucide-react'
 
-// Disable static generation for this page
+// Force dynamic rendering
 export const dynamic = 'force-dynamic'
 
 export default function SettingsPage() {
-  const { setBreadcrumbs } = useNavigation()
-
-  useEffect(() => {
-    setBreadcrumbs([
-      { label: 'Dashboard', href: '/' },
-      { label: 'Settings' }
-    ])
-  }, [setBreadcrumbs])
-
   return (
     <div className="space-y-6 p-6">
       <div>

@@ -24,7 +24,7 @@ import {
   CollectionFormData,
   useFormValidation,
 } from "@/lib/form-validation";
-import { ApiClient } from "@/lib/api-client";
+import { useCreateCollection } from "@/hooks/api/useCollections";
 import { Plus, FolderPlus } from "lucide-react";
 
 interface NewCollectionSheetProps {
@@ -37,8 +37,7 @@ export function NewCollectionSheet({
   trigger,
 }: NewCollectionSheetProps) {
   const [open, setOpen] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const apiClient = new ApiClient();
+  const createCollectionMutation = useCreateCollection();
 
   // Form setup with validation
   const form = useForm<CollectionFormData>({
@@ -62,13 +61,9 @@ export function NewCollectionSheet({
 
   // Submit handler with comprehensive error handling
   const onSubmit = createSubmitHandler(async (data: CollectionFormData) => {
-    setIsSubmitting(true);
-
     try {
-      // Create collection via API
-      const response = await apiClient.post("/api/collections", data);
-
-      const newCollection = response.data;
+      // Create collection using the proper hook
+      const newCollection = await createCollectionMutation.mutateAsync(data);
 
       // Notify parent component
       onCollectionCreated?.(newCollection);
@@ -81,8 +76,6 @@ export function NewCollectionSheet({
     } catch (error) {
       // Error is automatically handled by the form validation system
       throw error;
-    } finally {
-      setIsSubmitting(false);
     }
   });
 
@@ -155,12 +148,12 @@ export function NewCollectionSheet({
                 type="button"
                 variant="outline"
                 onClick={() => setOpen(false)}
-                disabled={isSubmitting}
+                disabled={createCollectionMutation.isPending}
               >
                 Cancel
               </Button>
               <FormSubmitButton
-                isLoading={isSubmitting}
+                isLoading={createCollectionMutation.isPending}
                 disabled={!form.formState.isValid}
                 loadingText="Creating..."
               >
@@ -184,6 +177,11 @@ export function NewCollectionSheet({
                       isSubmitting: form.formState.isSubmitting,
                       touchedFields: form.formState.touchedFields,
                       dirtyFields: form.formState.dirtyFields,
+                      mutation: {
+                        isPending: createCollectionMutation.isPending,
+                        isError: createCollectionMutation.isError,
+                        error: createCollectionMutation.error?.message,
+                      },
                     },
                     null,
                     2

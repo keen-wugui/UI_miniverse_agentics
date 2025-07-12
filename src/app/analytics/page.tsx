@@ -1,24 +1,13 @@
 'use client'
 
-import { useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { useNavigation } from '@/contexts/navigation-context'
 import { BarChart3, Download, Calendar } from 'lucide-react'
 
-// Disable static generation for this page
+// Force dynamic rendering
 export const dynamic = 'force-dynamic'
 
 export default function AnalyticsPage() {
-  const { setBreadcrumbs } = useNavigation()
-
-  useEffect(() => {
-    setBreadcrumbs([
-      { label: 'Dashboard', href: '/' },
-      { label: 'Analytics' }
-    ])
-  }, [setBreadcrumbs])
-
   return (
     <div className="space-y-6 p-6">
       <div className="flex items-center justify-between">
