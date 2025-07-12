@@ -1,6 +1,5 @@
 import apiConfig from "@/config/api-config.json";
-// Safe logger import to prevent infinite loops
-import type { ApiLogData } from "@/lib/logger";
+import { apiLogger, extractErrorInfo, type ApiLogContext } from "@/lib/logger-config";
 
 // Types for the API client
 export interface ApiClientConfig {
@@ -160,14 +159,14 @@ export class ApiClient {
   // Log request (if enabled)
   private logRequest(url: string, options: RequestInit, correlationId?: string): void {
     if (apiConfig.logging.enabled && apiConfig.logging.logRequests) {
-      const logData: ApiLogData = {
+      const context: ApiLogContext = {
         method: options.method || "GET",
         url,
         correlationId,
-        headers: this.sanitizeHeaders(options.headers as Record<string, string>),
         requestSize: this.getRequestSize(options.body),
+        userAgent: typeof window !== 'undefined' ? window.navigator?.userAgent : undefined,
       };
-      this.safeLog("info", "API Request", logData);
+      apiLogger.request(context);
     }
   }
 
@@ -181,7 +180,7 @@ export class ApiClient {
     method?: string
   ): void {
     if (apiConfig.logging.enabled && apiConfig.logging.logResponses) {
-      const logData: ApiLogData = {
+      const context: ApiLogContext = {
         method: method || "GET",
         url,
         statusCode: response.status,
@@ -189,7 +188,7 @@ export class ApiClient {
         correlationId,
         responseSize: this.getResponseSize(data),
       };
-      this.safeLog("info", "API Response", logData);
+      apiLogger.response(context);
     }
   }
 
@@ -201,14 +200,14 @@ export class ApiClient {
     correlationId?: string
   ): void {
     if (apiConfig.logging.enabled && apiConfig.logging.logErrors) {
-      const logData: ApiLogData & { error: any } = {
+      const context: ApiLogContext = {
         method: method || "UNKNOWN",
         url: url || "UNKNOWN",
         statusCode: error.status,
         correlationId,
-        error,
       };
-      this.safeLog("error", "API Error", logData);
+      
+      apiLogger.error(error, context);
     }
   }
 
@@ -446,54 +445,30 @@ export class ApiClient {
   }
 
   // Helper methods for logging
-  private sanitizeHeaders(headers?: Record<string, string>): Record<string, string> {
-    if (!headers) return {};
-    
-    const sanitized = { ...headers };
-    const sensitiveHeaders = ['authorization', 'cookie', 'x-api-key', 'x-auth-token'];
-    
-    sensitiveHeaders.forEach(header => {
-      if (sanitized[header]) {
-        sanitized[header] = '[REDACTED]';
-      }
-      if (sanitized[header.toLowerCase()]) {
-        sanitized[header.toLowerCase()] = '[REDACTED]';
-      }
-    });
-    
-    return sanitized;
-  }
-
   private getRequestSize(body?: any): number | undefined {
     if (!body) return undefined;
     if (typeof body === 'string') return body.length;
     if (body instanceof FormData) return undefined; // Can't easily measure FormData size
-    return JSON.stringify(body).length;
+    try {
+      return JSON.stringify(body).length;
+    } catch {
+      return undefined; // Fallback for non-serializable objects
+    }
   }
 
   private getResponseSize(data?: any): number | undefined {
     if (!data) return undefined;
     if (typeof data === 'string') return data.length;
-    return JSON.stringify(data).length;
+    try {
+      return JSON.stringify(data).length;
+    } catch {
+      return undefined; // Fallback for non-serializable objects
+    }
   }
 
   // Generate correlation ID for request tracking
   private generateCorrelationId(): string {
     return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-  }
-
-  // Safe logging method to prevent infinite loops
-  private safeLog(level: string, message: string, data?: any): void {
-    try {
-      // Use console as fallback to prevent infinite loops
-      if (typeof window !== "undefined" && level === "error") {
-        console.error(`[API Client] ${message}`, data);
-      } else if (typeof window !== "undefined") {
-        console.log(`[API Client] ${message}`, data);
-      }
-    } catch (e) {
-      // Silent fail to prevent any cascading errors
-    }
   }
 }
 

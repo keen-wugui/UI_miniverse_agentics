@@ -68,9 +68,6 @@ importers:
       pino:
         specifier: ^9.7.0
         version: 9.7.0
-      pino-pretty:
-        specifier: ^13.0.0
-        version: 13.0.0
       pino-roll:
         specifier: ^3.1.0
         version: 3.1.0
@@ -95,6 +92,9 @@ importers:
       rotating-file-stream:
         specifier: ^3.2.6
         version: 3.2.6
+      serialize-error:
+        specifier: ^12.0.0
+        version: 12.0.0
       tailwind-merge:
         specifier: ^3.3.1
         version: 3.3.1
@@ -117,6 +117,9 @@ importers:
       '@types/node':
         specifier: ^20.0.0
         version: 20.14.7
+      '@types/pino':
+        specifier: ^7.0.5
+        version: 7.0.5
       '@types/react':
         specifier: ^19.0.0
         version: 19.1.8
@@ -153,6 +156,9 @@ importers:
       msw:
         specifier: ^2.10.3
         version: 2.10.3(@types/node@20.14.7)(typescript@5.8.3)
+      pino-pretty:
+        specifier: ^13.0.0
+        version: 13.0.0
       postcss:
         specifier: ^8.4.0
         version: 8.4.45
@@ -1439,6 +1445,10 @@ packages:
 
   '@types/node@20.14.7':
     resolution: {integrity: sha512-uTr2m2IbJJucF3KUxgnGOZvYbN0QgkGyWxG6973HCpMYFy2KfcgYuIwkJQMQkt1VbBMlvWRbpshFTLxnxCZjKQ==}
+
+  '@types/pino@7.0.5':
+    resolution: {integrity: sha512-wKoab31pknvILkxAF8ss+v9iNyhw5Iu/0jLtRkUD74cNfOOLJNnqfFKAv0r7wVaTQxRZtWrMpGfShwwBjOcgcg==}
+    deprecated: This is a stub types definition. pino provides its own type definitions, so you do not need this installed.
 
   '@types/react-dom@19.1.6':
     resolution: {integrity: sha512-4hOiT/dwO8Ko0gV1m/TJZYk3y0KBnY9vzDh7W+DH17b2HFSOGgdj33dhihPeuy3l0q23+4e+hoXHV6hCC4dCXw==}
@@ -3360,6 +3370,10 @@ packages:
     engines: {node: '>=10'}
     hasBin: true
 
+  serialize-error@12.0.0:
+    resolution: {integrity: sha512-ZYkZLAvKTKQXWuh5XpBw7CdbSzagarX39WyZ2H07CDLC5/KfsRGlIXV8d4+tfqX1M7916mRqR1QfNHSij+c9Pw==}
+    engines: {node: '>=18'}
+
   set-function-length@1.2.2:
     resolution: {integrity: sha512-pgRc4hJ4/sNjWCSS9AmnS40x3bNMDTknHgL5UaMBTMyJnU90EgWh1Rz+MC9eFu4BuN/UwZjKQuY/1v3rM7HMfg==}
     engines: {node: '>= 0.4'}
@@ -5053,6 +5067,10 @@ snapshots:
   '@types/node@20.14.7':
     dependencies:
       undici-types: 5.26.5
+
+  '@types/pino@7.0.5':
+    dependencies:
+      pino: 9.7.0
 
   '@types/react-dom@19.1.6(@types/react@19.1.8)':
     dependencies:
@@ -7216,6 +7234,10 @@ snapshots:
   semver@6.3.1: {}
 
   semver@7.7.2: {}
+
+  serialize-error@12.0.0:
+    dependencies:
+      type-fest: 4.41.0
 
   set-function-length@1.2.2:
     dependencies:

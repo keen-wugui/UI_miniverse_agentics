@@ -1,6 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
+
+// Force dynamic rendering for this interactive dashboard
+export const dynamic = 'force-dynamic';
 import {
   Card,
   CardContent,
@@ -12,8 +15,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useNavigation } from "@/contexts/navigation-context";
 
-// Disable static generation for this page
-export const dynamic = 'force-dynamic';
 import {
   Activity,
   FileText,
@@ -158,7 +159,7 @@ export default function Dashboard() {
               <Loader2 className="h-6 w-6 animate-spin" />
             ) : (
               <div className="text-2xl font-bold">
-                {documentsError ? "24" : (documentsData?.pagination.total ?? 0)}
+                {documentsError ? "24" : (documentsData?.pagination?.total ?? 0)}
               </div>
             )}
             <p className="text-xs text-muted-foreground">
@@ -177,7 +178,7 @@ export default function Dashboard() {
               <Loader2 className="h-6 w-6 animate-spin" />
             ) : (
               <div className="text-2xl font-bold">
-                {collectionsError ? "8" : (collectionsData?.pagination.total ?? 0)}
+                {collectionsError ? "8" : (collectionsData?.pagination?.total ?? 0)}
               </div>
             )}
             <p className="text-xs text-muted-foreground">
@@ -198,7 +199,7 @@ export default function Dashboard() {
               <Loader2 className="h-6 w-6 animate-spin" />
             ) : (
               <div className="text-2xl font-bold">
-                {workflowsError ? "12" : (workflowsData?.pagination.total ?? 0)}
+                {workflowsError ? "12" : (workflowsData?.pagination?.total ?? 0)}
               </div>
             )}
             <p className="text-xs text-muted-foreground">

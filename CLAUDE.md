@@ -901,3 +901,36 @@ pnpm lint --ext .test.ts,.test.tsx
 - **CI Reports**: Automated coverage tracking
 
 This comprehensive testing strategy ensures robust, maintainable, and effective testing for the entire application, providing confidence in deployments and feature development.
+
+## Logging Infrastructure
+
+### Production-Grade Logging Strategy
+
+This application implements a structured logging infrastructure using industry-standard libraries to ensure reliable error tracking and debugging capabilities in both development and production environments.
+
+#### Key Libraries
+- **Pino**: High-performance structured logging with configurable transports
+- **serialize-error**: Safe error serialization that handles circular references and non-enumerable properties
+- **Environment-aware configuration**: Different logging strategies for development vs production
+
+#### Logging Principles
+1. **Structured Error Extraction**: Always extract specific error properties rather than logging raw error objects
+2. **Safe Serialization**: Use battle-tested libraries to handle circular references and complex object graphs
+3. **Environment-Specific Transports**: Console logging in development, file/cloud logging in production
+4. **Centralized Configuration**: Single source of truth for logging settings
+5. **Error Monitoring Integration**: Ready for Sentry, Datadog, or similar monitoring services
+
+#### Implementation Details
+- API client errors are safely serialized using `serialize-error`
+- Structured log format includes correlation IDs, request/response metadata, and performance metrics
+- Error logging paths are unit tested to ensure reliability
+- Sensitive data is automatically scrubbed before logging
+
+#### Testing Error Logging
+All error logging code paths include dedicated tests for:
+- Circular reference handling
+- Malformed error objects
+- Serialization fallbacks
+- Graceful degradation when logging fails
+
+This approach moves beyond simple console logging to provide a robust, observable, and maintainable error tracking infrastructure essential for production reliability.
