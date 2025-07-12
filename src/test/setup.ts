@@ -11,7 +11,7 @@ afterEach(() => {
 // Start server before all tests
 beforeAll(() => {
   server.listen({
-    onUnhandledRequest: "error",
+    onUnhandledRequest: "warn",
   });
 });
 

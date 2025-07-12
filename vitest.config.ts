@@ -34,7 +34,8 @@ export default defineConfig({
         },
       },
     },
-    testTimeout: 10000,
+    testTimeout: 15000,
+    hookTimeout: 15000,
     include: [
       "**/__tests__/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}",
       "**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}",

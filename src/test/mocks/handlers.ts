@@ -18,7 +18,7 @@ const mockDatabaseHealthResponse = {
 
 const mockDocuments = [
   {
-    id: "1",
+    id: "doc-1",
     name: "Test Document 1",
     filename: "test1.pdf",
     size: 1024000,
@@ -33,9 +33,10 @@ const mockDocuments = [
     },
     tags: ["test", "document"],
     collections: [],
+    processingProgress: 100,
   },
   {
-    id: "2",
+    id: "doc-2",
     name: "Test Document 2",
     filename: "test2.docx",
     size: 512000,
@@ -47,6 +48,7 @@ const mockDocuments = [
     metadata: {},
     tags: [],
     collections: ["collection-1"],
+    processingProgress: 75,
   },
 ];
 
@@ -134,7 +136,7 @@ export const handlers = [
     }
   ),
 
-  http.get(`${apiConfig.api.baseUrl}/api/documents/:id`, ({ params }) => {
+  http.get(`${apiConfig.api.baseUrl}/documents/:id`, ({ params }) => {
     const document = mockDocuments.find((doc) => doc.id === params.id);
     if (!document) {
       return new HttpResponse(null, { status: 404 });
@@ -173,7 +175,7 @@ export const handlers = [
     }
   ),
 
-  http.delete(`${apiConfig.api.baseUrl}/api/documents/:id`, ({ params }) => {
+  http.delete(`${apiConfig.api.baseUrl}/documents/:id`, ({ params }) => {
     const documentExists = mockDocuments.some((doc) => doc.id === params.id);
     if (!documentExists) {
       return new HttpResponse(null, { status: 404 });
@@ -199,7 +201,7 @@ export const handlers = [
     }
   ),
 
-  http.get(`${apiConfig.api.baseUrl}/api/collections/:id`, ({ params }) => {
+  http.get(`${apiConfig.api.baseUrl}/collections/:id`, ({ params }) => {
     const collection = mockCollections.find((col) => col.id === params.id);
     if (!collection) {
       return new HttpResponse(null, { status: 404 });
