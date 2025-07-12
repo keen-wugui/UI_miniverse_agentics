@@ -1,5 +1,6 @@
 import apiConfig from "@/config/api-config.json";
-import { logger, ApiLogData } from "@/lib/logger";
+// Safe logger import to prevent infinite loops
+import type { ApiLogData } from "@/lib/logger";
 
 // Types for the API client
 export interface ApiClientConfig {
@@ -166,7 +167,7 @@ export class ApiClient {
         headers: this.sanitizeHeaders(options.headers as Record<string, string>),
         requestSize: this.getRequestSize(options.body),
       };
-      logger.logApiRequest(logData);
+      this.safeLog("info", "API Request", logData);
     }
   }
 
@@ -188,7 +189,7 @@ export class ApiClient {
         correlationId,
         responseSize: this.getResponseSize(data),
       };
-      logger.logApiResponse(logData);
+      this.safeLog("info", "API Response", logData);
     }
   }
 
@@ -207,7 +208,7 @@ export class ApiClient {
         correlationId,
         error,
       };
-      logger.logApiError(logData);
+      this.safeLog("error", "API Error", logData);
     }
   }
 
@@ -216,7 +217,7 @@ export class ApiClient {
     url: string,
     options: ApiRequestOptions = {}
   ): Promise<ApiResponse<T>> {
-    const correlationId = logger.generateCorrelationId();
+    const correlationId = this.generateCorrelationId();
     const startTime = Date.now();
     const {
       method = "GET",
@@ -474,6 +475,25 @@ export class ApiClient {
     if (!data) return undefined;
     if (typeof data === 'string') return data.length;
     return JSON.stringify(data).length;
+  }
+
+  // Generate correlation ID for request tracking
+  private generateCorrelationId(): string {
+    return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  }
+
+  // Safe logging method to prevent infinite loops
+  private safeLog(level: string, message: string, data?: any): void {
+    try {
+      // Use console as fallback to prevent infinite loops
+      if (typeof window !== "undefined" && level === "error") {
+        console.error(`[API Client] ${message}`, data);
+      } else if (typeof window !== "undefined") {
+        console.log(`[API Client] ${message}`, data);
+      }
+    } catch (e) {
+      // Silent fail to prevent any cascading errors
+    }
   }
 }
 
