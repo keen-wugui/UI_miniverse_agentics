@@ -344,6 +344,7 @@ export interface RAGQueryRequest {
 }
 
 export interface RAGQueryResponse {
+  queryId: string;
   answer: string;
   sources: {
     documentId: string;

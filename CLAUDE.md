@@ -118,3 +118,68 @@ pnpm add -D <pkg> # Add dev dependency
 1. Define Zod schema for validation
 2. Use React Hook Form with zodResolver
 3. Use shadcn/ui form components for consistent styling
+
+## API Configuration
+
+### REST API Backend
+The application communicates with a REST API backend running on `http://localhost:8000`. All API requests are configured through `/src/config/api-config.json`.
+
+### Available API Endpoints
+
+#### Health Monitoring
+- `GET /health` - Basic health check
+- `GET /health/database` - Database connection status
+- `GET /health/database/metrics` - Database performance metrics
+
+#### Document Management
+- `GET /documents` - List documents with pagination
+- `POST /documents/upload` - Upload new documents
+- `GET /documents/{id}` - Get document details
+- `DELETE /documents/{id}` - Delete a document
+- `GET /documents/search` - Search documents
+- `POST /documents/{id}/extract` - Extract text from document
+
+#### Collection Management
+- `GET /collections` - List collections
+- `POST /collections` - Create new collection
+- `GET /collections/{id}` - Get collection details
+- `PUT /collections/{id}` - Update collection
+- `DELETE /collections/{id}` - Delete collection
+- `GET /collections/{id}/documents` - Get documents in collection
+- `POST /collections/{id}/documents/{docId}` - Add document to collection
+- `DELETE /collections/{id}/documents/{docId}` - Remove document from collection
+
+#### Workflow Management
+- `GET /workflows` - List workflows
+- `POST /workflows` - Create new workflow
+- `GET /workflows/{id}` - Get workflow details
+- `PUT /workflows/{id}` - Update workflow
+- `DELETE /workflows/{id}` - Delete workflow
+- `POST /workflows/{id}/execute` - Execute workflow
+- `GET /workflows/{id}/executions` - Get workflow executions
+- `GET /workflows/executions/{executionId}` - Get execution status
+- `POST /workflows/executions/{executionId}/cancel` - Cancel execution
+
+#### RAG (Retrieval-Augmented Generation)
+- `GET /rag/config` - Get RAG configuration
+- `PUT /rag/config` - Update RAG configuration
+- `POST /rag/query` - Submit RAG query
+- `POST /rag/chat` - Chat with RAG system
+- `POST /rag/index` - Create new index
+- `GET /rag/index/{indexId}/status` - Get indexing status
+- `DELETE /rag/index/{indexId}` - Delete index
+- `POST /rag/index/{indexId}/rebuild` - Rebuild index
+
+#### Business Metrics
+- `GET /business-metrics/summary` - Get metrics summary
+- `GET /business-metrics/kpis` - Get KPIs
+- `POST /business-metrics/kpis` - Create new KPI
+- `PUT /business-metrics/kpis/{id}` - Update KPI
+- `DELETE /business-metrics/kpis/{id}` - Delete KPI
+- `GET /business-metrics/reports` - Generate reports
+- `GET /business-metrics/export` - Export metrics data
+
+### Development & Testing
+- **Mock Service Worker (MSW)**: API responses are mocked during development using MSW
+- **Bypass Configuration**: MSW is configured to bypass all localhost:3000 requests (Next.js static assets) and only intercept localhost:8000 API requests
+- **Error Simulation**: Test endpoints available at `/test/error/{statusCode}` for testing error handling

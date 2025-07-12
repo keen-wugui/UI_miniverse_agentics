@@ -26,7 +26,13 @@ async function enableMocking() {
   // `worker.start()` returns a Promise that resolves
   // once the Service Worker is up and ready to intercept requests.
   return worker.start({
-    onUnhandledRequest: "warn",
+    onUnhandledRequest: (req, print) => {
+      // Only warn about unhandled requests to our API server (localhost:8000)
+      // Ignore all other requests (Next.js app, static assets, etc.)
+      if (req.url.startsWith('http://localhost:8000')) {
+        print.warning();
+      }
+    },
   });
 }
 

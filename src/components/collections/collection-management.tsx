@@ -46,7 +46,7 @@ export function CollectionManagement() {
         <div>Loading...</div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {collectionsData?.data?.length > 0 ? (
+          {collectionsData?.data && collectionsData.data.length > 0 ? (
             collectionsData.data.map((collection) => (
               <Card key={collection.id}>
                 <CardHeader>

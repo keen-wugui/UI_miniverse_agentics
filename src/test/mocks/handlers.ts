@@ -83,6 +83,11 @@ const mockWorkflows = [
 ];
 
 export const handlers = [
+  // Bypass all localhost:3000 requests (Next.js app and static assets)
+  http.all('http://localhost:3000/*', ({ request }) => {
+    return fetch(request);
+  }),
+
   // Health endpoints
   http.get(`${apiConfig.api.baseUrl}${apiConfig.endpoints.health.base}`, () => {
     return HttpResponse.json(mockHealthResponse);

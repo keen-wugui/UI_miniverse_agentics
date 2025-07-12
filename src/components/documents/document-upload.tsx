@@ -56,7 +56,7 @@ const MAX_FILES = 20;
 
 export function DocumentUpload({ onUploadSuccess, defaultCollectionId }: DocumentUploadProps) {
   const [uploadFiles, setUploadFiles] = useState<UploadFile[]>([]);
-  const [selectedCollectionId, setSelectedCollectionId] = useState<string>(defaultCollectionId || '');
+  const [selectedCollectionId, setSelectedCollectionId] = useState<string>(defaultCollectionId || 'none');
   const [isUploading, setIsUploading] = useState(false);
   
   const { toast } = useToast();
@@ -90,7 +90,7 @@ export function DocumentUpload({ onUploadSuccess, defaultCollectionId }: Documen
       file,
       progress: 0,
       status: 'pending',
-      collectionId: selectedCollectionId || undefined,
+      collectionId: selectedCollectionId === 'none' ? undefined : selectedCollectionId,
     }));
 
     setUploadFiles(prev => [...prev, ...newUploadFiles]);
@@ -135,7 +135,7 @@ export function DocumentUpload({ onUploadSuccess, defaultCollectionId }: Documen
       // Perform actual upload
       uploadDocumentMutation.mutateAsync({
         file: uploadFile.file,
-        collections: uploadFile.collectionId ? [uploadFile.collectionId] : undefined,
+        collections: uploadFile.collectionId && uploadFile.collectionId !== 'none' ? [uploadFile.collectionId] : undefined,
       })
       .then(() => {
         clearInterval(progressInterval);
@@ -253,7 +253,7 @@ export function DocumentUpload({ onUploadSuccess, defaultCollectionId }: Documen
                   <SelectValue placeholder="Select collection" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">No Collection</SelectItem>
+                  <SelectItem value="none">No Collection</SelectItem>
                   {collections.map((collection) => (
                     <SelectItem key={collection.id} value={collection.id}>
                       {collection.name}
@@ -339,14 +339,14 @@ export function DocumentUpload({ onUploadSuccess, defaultCollectionId }: Documen
                   {/* Collection Assignment */}
                   {collections.length > 0 && uploadFile.status === 'pending' && (
                     <Select 
-                      value={uploadFile.collectionId || ''} 
+                      value={uploadFile.collectionId || 'none'} 
                       onValueChange={(value) => updateFileCollection(uploadFile.id, value)}
                     >
                       <SelectTrigger className="w-[150px]">
                         <SelectValue placeholder="Collection" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">No Collection</SelectItem>
+                        <SelectItem value="none">No Collection</SelectItem>
                         {collections.map((collection) => (
                           <SelectItem key={collection.id} value={collection.id}>
                             {collection.name}
