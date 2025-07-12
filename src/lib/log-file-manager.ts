@@ -63,10 +63,10 @@ export class LogFileManager {
     };
 
     // Generate filename with date pattern
-    const generator = (time: Date | null, index?: number): string => {
-      if (!time) return this.config.filename.replace('%DATE%', 'current');
+    const generator = (time: number | Date, index?: number): string => {
+      const dateObj = typeof time === 'number' ? new Date(time) : time;
       
-      const dateStr = this.formatDate(time, this.config.datePattern);
+      const dateStr = this.formatDate(dateObj, this.config.datePattern);
       let filename = this.config.filename.replace('%DATE%', dateStr);
       
       if (index !== undefined && index > 0) {

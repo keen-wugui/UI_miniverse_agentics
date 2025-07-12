@@ -179,7 +179,7 @@ export function QueryProviders({ children }: { children: React.ReactNode }) {
           queryCount: queryClient.getQueryCache().getAll().length,
         });
       } catch (error) {
-        logger.error("Cache warming failed", { error });
+        logger.error("Cache warming failed", { error: error as Error });
         errorReporter.report(handleApiError(error), {
           type: "cache_warming_error",
         });

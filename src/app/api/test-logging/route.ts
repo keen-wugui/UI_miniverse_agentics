@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
       correlationId,
       method: 'GET',
       url: request.url,
-      userAgent: request.headers.get('user-agent'),
+      userAgent: request.headers.get('user-agent') || undefined,
       timestamp: new Date().toISOString(),
     });
 
@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
     // Simulate some work
     await new Promise(resolve => setTimeout(resolve, 100));
     
-    timer({ operationType: 'api-test', recordsProcessed: 1 });
+    timer();
 
     // Test API-specific logging
     logger.logApiResponse({
@@ -59,7 +59,7 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     logger.logError(error as Error, {
       correlationId,
-      context: { apiRoute: '/api/test-logging' }
+      apiRoute: '/api/test-logging'
     });
 
     return NextResponse.json(

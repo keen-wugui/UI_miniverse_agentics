@@ -36,7 +36,7 @@ export interface ApiErrorHandlingOptions {
   retryCondition?: (error: EnhancedError) => boolean;
   onRetry?: (attempt: number) => void;
   onMaxRetriesReached?: (error: EnhancedError) => void;
-  customErrorMap?: Record<number, string>;
+  customErrorMap?: Record<string, string>;
 }
 
 export interface NetworkStatus {
@@ -203,7 +203,7 @@ export class ApiErrorClassifier {
       retryable = false;
     }
 
-    return new EnhancedError(error.message, code, category, severity, {
+    return new EnhancedError(error.message, code, ERROR_CATEGORIES[category], ERROR_SEVERITY[severity], {
       context: {
         status,
         statusText: error.statusText,
@@ -287,8 +287,8 @@ export class EnhancedApiErrorHandler {
     }
 
     // Apply custom error mapping
-    if (context && customErrorMap[context.method]) {
-      enhancedError.message = customErrorMap[context.method];
+    if (context && context.endpoint && customErrorMap[context.endpoint]) {
+      enhancedError.message = customErrorMap[context.endpoint];
     }
 
     // Handle the error through our existing system
@@ -296,7 +296,7 @@ export class EnhancedApiErrorHandler {
 
     // Show toast notification
     if (showToast) {
-      await this.toastHandler.showErrorToast(enhancedError, {
+      this.toastHandler.showError(enhancedError, {
         showRetry: enhancedError.retryable && options.enableRetry,
         retryAction: options.onRetry ? () => options.onRetry!(1) : undefined,
       });
@@ -304,7 +304,7 @@ export class EnhancedApiErrorHandler {
 
     // Report error if configured
     if (reportError && enhancedError.severity >= ERROR_SEVERITY.MEDIUM) {
-      await this.errorReporter.reportError(enhancedError, context);
+      this.errorReporter.report(enhancedError);
     }
 
     // Log error if configured
@@ -383,7 +383,6 @@ export const reactQueryErrorHandling = {
           staleTime: 5 * 60 * 1000, // 5 minutes
           gcTime: 10 * 60 * 1000, // 10 minutes
           refetchOnWindowFocus: false,
-          onError: reactQueryErrorHandling.defaultErrorHandler,
         },
         mutations: {
           retry: (failureCount, error) => {
@@ -394,7 +393,6 @@ export const reactQueryErrorHandling = {
             }
             return false;
           },
-          onError: reactQueryErrorHandling.defaultErrorHandler,
         },
       },
     });

@@ -9,13 +9,12 @@ import {
 } from "@/lib/cache-config";
 import type {
   WorkflowsResponse,
-  WorkflowResponse,
+  Workflow,
   CreateWorkflowRequest,
   UpdateWorkflowRequest,
   ExecuteWorkflowRequest,
-  WorkflowExecutionResponse,
-  WorkflowExecutionsResponse,
   WorkflowExecution,
+  WorkflowExecutionsResponse,
   PaginationParams,
 } from "@/types/api";
 
@@ -49,16 +48,16 @@ export const useWorkflows = (params?: PaginationParams) => {
 export const useWorkflow = (id: string, enabled: boolean = true) => {
   const cacheConfig = cacheStrategies.workflows;
 
-  return useQuery<WorkflowResponse>({
+  return useQuery<Workflow>({
     queryKey: queryKeys.workflows.detail(id),
-    queryFn: async (): Promise<WorkflowResponse> => {
+    queryFn: async (): Promise<Workflow> => {
       try {
         const url = buildUrl(
           apiConfig.api.baseUrl,
           apiConfig.endpoints.workflows.detail,
           { id }
         );
-        const response = await apiClient.get<WorkflowResponse>(url);
+        const response = await apiClient.get<Workflow>(url);
         return response.data;
       } catch (error) {
         throw handleApiError(error);
@@ -118,7 +117,7 @@ export const useWorkflowExecutionStatus = (
   const cacheConfig = cacheStrategies.workflows;
 
   return useQuery<WorkflowExecution>({
-    queryKey: queryKeys.workflows.executionStatus(executionId),
+    queryKey: queryKeys.workflows.executions.detail("", executionId),
     queryFn: async (): Promise<WorkflowExecution> => {
       try {
         const url = buildUrl(
@@ -139,8 +138,9 @@ export const useWorkflowExecutionStatus = (
     refetchOnWindowFocus: true,
     refetchOnMount: true,
     refetchOnReconnect: true,
-    refetchInterval: (data) => {
+    refetchInterval: (query) => {
       // Poll more frequently for running workflows
+      const data = query.state.data;
       if (data?.status === "running" || data?.status === "pending") {
         return 2000; // Poll every 2 seconds
       }
@@ -155,12 +155,12 @@ export const useCreateWorkflow = () => {
   const queryClient = useQueryClient();
   const cacheConfig = cacheStrategies.workflows;
 
-  return useMutation<WorkflowResponse, Error, CreateWorkflowRequest>({
+  return useMutation<Workflow, Error, CreateWorkflowRequest>({
     mutationFn: async (
       workflowData: CreateWorkflowRequest
-    ): Promise<WorkflowResponse> => {
+    ): Promise<Workflow> => {
       try {
-        const response = await apiClient.post<WorkflowResponse>(
+        const response = await apiClient.post<Workflow>(
           apiConfig.endpoints.workflows.create,
           workflowData
         );
@@ -172,11 +172,11 @@ export const useCreateWorkflow = () => {
     retry: typeof cacheConfig.retry === "number" ? cacheConfig.retry : 3,
     onSuccess: (data) => {
       // Add the new workflow to lists
-      cacheInvalidation.invalidateWorkflowLists(queryClient);
+      cacheInvalidation.invalidateWorkflows(queryClient);
 
       // Set the new workflow in cache
       queryClient.setQueryData(
-        queryKeys.workflows.detail(data.workflow.id),
+        queryKeys.workflows.detail(data.id),
         data
       );
     },
@@ -189,18 +189,18 @@ export const useUpdateWorkflow = () => {
   const cacheConfig = cacheStrategies.workflows;
 
   return useMutation<
-    WorkflowResponse,
+    Workflow,
     Error,
     { id: string; updates: UpdateWorkflowRequest }
   >({
-    mutationFn: async ({ id, updates }): Promise<WorkflowResponse> => {
+    mutationFn: async ({ id, updates }): Promise<Workflow> => {
       try {
         const url = buildUrl(
           apiConfig.api.baseUrl,
           apiConfig.endpoints.workflows.detail,
           { id }
         );
-        const response = await apiClient.patch<WorkflowResponse>(url, updates);
+        const response = await apiClient.patch<Workflow>(url, updates);
         return response.data;
       } catch (error) {
         throw handleApiError(error);
@@ -212,7 +212,7 @@ export const useUpdateWorkflow = () => {
       queryClient.setQueryData(queryKeys.workflows.detail(id), data);
 
       // Invalidate workflow lists to reflect changes
-      cacheInvalidation.invalidateWorkflowLists(queryClient);
+      cacheInvalidation.invalidateWorkflows(queryClient);
     },
   });
 };
@@ -255,7 +255,7 @@ export const useDeleteWorkflow = () => {
       });
 
       // Invalidate workflow lists
-      cacheInvalidation.invalidateWorkflowLists(queryClient);
+      cacheInvalidation.invalidateWorkflows(queryClient);
     },
   });
 };
@@ -265,19 +265,18 @@ export const useExecuteWorkflow = () => {
   const queryClient = useQueryClient();
   const cacheConfig = cacheStrategies.workflows;
 
-  return useMutation<WorkflowExecutionResponse, Error, ExecuteWorkflowRequest>({
+  return useMutation<WorkflowExecution, Error, ExecuteWorkflowRequest>({
     mutationFn: async (
       executeData: ExecuteWorkflowRequest
-    ): Promise<WorkflowExecutionResponse> => {
+    ): Promise<WorkflowExecution> => {
       try {
         const url = buildUrl(
           apiConfig.api.baseUrl,
           apiConfig.endpoints.workflows.execute,
-          { id: executeData.workflowId }
+          { id: executeData.input?.workflowId || "" }
         );
-        const response = await apiClient.post<WorkflowExecutionResponse>(url, {
-          parameters: executeData.parameters,
-          metadata: executeData.metadata,
+        const response = await apiClient.post<WorkflowExecution>(url, {
+          input: executeData.input,
         });
         return response.data;
       } catch (error) {
@@ -285,16 +284,16 @@ export const useExecuteWorkflow = () => {
       }
     },
     retry: typeof cacheConfig.retry === "number" ? cacheConfig.retry : 3,
-    onSuccess: (data, { workflowId }) => {
+    onSuccess: (data, executeData) => {
       // Invalidate workflow executions to show the new execution
       queryClient.invalidateQueries({
-        queryKey: queryKeys.workflows.executions(workflowId),
+        queryKey: queryKeys.workflows.executions.all(executeData.input?.workflowId || ""),
       });
 
       // Set the execution status in cache
       queryClient.setQueryData(
-        queryKeys.workflows.executionStatus(data.execution.id),
-        data.execution
+        queryKeys.workflows.executions.detail("", data.id),
+        data
       );
     },
   });
@@ -322,7 +321,7 @@ export const useCancelWorkflowExecution = () => {
     onSuccess: (_, executionId) => {
       // Invalidate execution status to get updated status
       queryClient.invalidateQueries({
-        queryKey: queryKeys.workflows.executionStatus(executionId),
+        queryKey: queryKeys.workflows.executions.detail("", executionId),
       });
 
       // Invalidate executions lists that might include this execution
@@ -356,19 +355,14 @@ export const useWorkflowExecutionTracking = (
     isCancelled: executionStatus.data?.status === "cancelled",
 
     // Progress and timing information
-    progress: executionStatus.data?.progress || 0,
-    startedAt: executionStatus.data?.startedAt,
-    completedAt: executionStatus.data?.completedAt,
     duration: executionStatus.data?.duration,
 
     // Results and error information
-    result: executionStatus.data?.result,
     errorMessage: executionStatus.data?.errorMessage,
     logs: executionStatus.data?.logs,
 
     // Workflow information
     workflowId: executionStatus.data?.workflowId,
-    workflowName: executionStatus.data?.workflowName,
 
     // Whether the execution is still active (and polling should continue)
     isActive:
@@ -421,11 +415,11 @@ export const useBulkWorkflowOperations = () => {
     },
   });
 
-  const bulkExecute = useMutation<WorkflowExecutionResponse[], Error, string[]>(
+  const bulkExecute = useMutation<WorkflowExecution[], Error, string[]>(
     {
       mutationFn: async (
         workflowIds: string[]
-      ): Promise<WorkflowExecutionResponse[]> => {
+      ): Promise<WorkflowExecution[]> => {
         try {
           const executions = await Promise.all(
             workflowIds.map(async (workflowId) => {
@@ -435,7 +429,7 @@ export const useBulkWorkflowOperations = () => {
                 { id: workflowId }
               );
               const response =
-                await apiClient.post<WorkflowExecutionResponse>(url);
+                await apiClient.post<WorkflowExecution>(url);
               return response.data;
             })
           );
@@ -448,15 +442,15 @@ export const useBulkWorkflowOperations = () => {
       onSuccess: (executions) => {
         // Invalidate execution queries for all affected workflows
         executions.forEach((execution) => {
-          const workflowId = execution.execution.workflowId;
+          const workflowId = execution.workflowId;
           queryClient.invalidateQueries({
-            queryKey: queryKeys.workflows.executions(workflowId),
+            queryKey: queryKeys.workflows.executions.all(workflowId),
           });
 
           // Set each execution status in cache
           queryClient.setQueryData(
-            queryKeys.workflows.executionStatus(execution.execution.id),
-            execution.execution
+            queryKeys.workflows.executions.detail("", execution.id),
+            execution
           );
         });
       },

@@ -346,13 +346,11 @@ export const useRAGIndexTracking = (
     totalDocuments: indexStatus.data?.totalDocuments || 0,
 
     // Timing information
-    startedAt: indexStatus.data?.startedAt,
+    startedAt: indexStatus.data?.completedAt,
     completedAt: indexStatus.data?.completedAt,
-    estimatedCompletion: indexStatus.data?.estimatedCompletion,
-
+    
     // Error information
     errorMessage: indexStatus.data?.errorMessage,
-    lastError: indexStatus.data?.lastError,
 
     // Whether the index operation is still active
     isActive:

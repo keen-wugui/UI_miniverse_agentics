@@ -52,7 +52,7 @@ export const loggerExamples = {
     // ... do some work
     
     // Log completion with metadata
-    timer({ documentsProcessed: 50, totalSize: '2.5MB' });
+    timer();
 
     // Or log performance directly
     logger.logPerformance({
@@ -163,7 +163,7 @@ export const exampleApiRoute = async (req: Request) => {
   } catch (error) {
     logger.logError(error as Error, {
       correlationId,
-      context: { apiRoute: '/api/example' }
+      apiRoute: '/api/example'
     });
     
     return Response.json({ error: 'Internal server error' }, { status: 500 });
