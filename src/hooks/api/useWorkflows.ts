@@ -83,7 +83,7 @@ export const useWorkflowExecutions = (
   const cacheConfig = cacheStrategies.workflows;
 
   return useQuery<WorkflowExecutionsResponse>({
-    queryKey: queryKeys.workflows.executions(workflowId, params),
+    queryKey: queryKeys.workflows.executions.list(workflowId, params),
     queryFn: async (): Promise<WorkflowExecutionsResponse> => {
       try {
         const url = buildUrl(

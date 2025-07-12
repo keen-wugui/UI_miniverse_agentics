@@ -2,6 +2,10 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Task Management
+
+**IMPORTANT**: All tasks must be managed through Task Master AI. Use the TodoWrite tool to create, track, and complete tasks for any work performed in this repository. This ensures proper task organization, progress tracking, and user visibility.
+
 ## Project Overview
 
 This is an Agentic Workflow Dashboard built with Next.js 15 (App Router), providing a web-based management interface for business-specific RAG (Retrieval-Augmented Generation) workflows.

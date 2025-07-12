@@ -6,7 +6,7 @@ import {
   PERFORMANCE_THRESHOLDS,
 } from "@/config/logging-config";
 // Import LogFileManager only on server-side
-let LogFileManager: any = null;
+let LogFileManager: typeof import("@/lib/log-file-manager").LogFileManager | null = null;
 if (typeof window === 'undefined') {
   try {
     LogFileManager = require("@/lib/log-file-manager").LogFileManager;
@@ -69,7 +69,7 @@ export interface ApiLogData extends LogData {
 export class EnhancedLogger {
   private logger!: Logger;
   private config = getCurrentLoggingConfig();
-  private fileManager: LogFileManager | null = null;
+  private fileManager: InstanceType<typeof LogFileManager> | null = null;
   private isInitialized = false;
 
   constructor() {
@@ -247,7 +247,7 @@ export class EnhancedLogger {
       delete logData.context;
       this[level](message, {
         ...logData,
-        context: LOG_CONTEXTS.API as LogContext,
+        context: LOG_CONTEXTS.API,
       });
     }
   }
@@ -409,7 +409,6 @@ export const logger = new EnhancedLogger();
 
 // Convenience exports
 export { LOG_CONTEXTS, PERFORMANCE_THRESHOLDS };
-export type { LogData, PerformanceLogData, ErrorLogData, ApiLogData, LogContext };
 
 // Legacy console replacement (for gradual migration)
 export const consoleReplacer = {
