@@ -5,7 +5,15 @@ import {
   LOG_CONTEXTS,
   PERFORMANCE_THRESHOLDS,
 } from "@/config/logging-config";
-import { LogFileManager } from "@/lib/log-file-manager";
+// Import LogFileManager only on server-side
+let LogFileManager: any = null;
+if (typeof window === 'undefined') {
+  try {
+    LogFileManager = require("@/lib/log-file-manager").LogFileManager;
+  } catch (e) {
+    // File manager not available
+  }
+}
 
 // Enhanced log data interface
 export interface LogData {
@@ -73,8 +81,8 @@ export class EnhancedLogger {
   // Async initialization for file logging
   private async initializeAsync(): Promise<void> {
     try {
-      // Initialize file manager if file logging is enabled
-      if (this.config.enableFile && this.config.file && typeof window === 'undefined') {
+      // Initialize file manager if file logging is enabled and LogFileManager is available
+      if (this.config.enableFile && this.config.file && typeof window === 'undefined' && LogFileManager) {
         this.fileManager = new LogFileManager({
           config: this.config.file,
           enableRotation: true,

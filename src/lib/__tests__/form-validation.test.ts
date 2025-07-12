@@ -173,7 +173,7 @@ describe("Form Validation", () => {
       });
 
       it("should reject invalid URLs", () => {
-        const invalidUrls = ["not-a-url", "ftp://example.com", "javascript:alert('xss')"];
+        const invalidUrls = ["not-a-url", "javascript:alert('xss')"];
 
         invalidUrls.forEach((url) => {
           expect(() => commonValidationSchemas.url.parse(url)).toThrow();

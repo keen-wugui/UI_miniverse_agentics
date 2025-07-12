@@ -444,3 +444,456 @@ pnpm test:coverage
 - Coverage reports are generated and checked against thresholds
 - Failed tests block deployments
 - Performance tests ensure acceptable response times
+
+## Comprehensive Testing Strategy Documentation
+
+### Testing Philosophy
+
+Our testing strategy is built on the principle of **confidence through comprehensive coverage**. We focus on testing user behavior and business logic rather than implementation details, ensuring that our tests provide real value and catch actual issues that users might encounter.
+
+#### Core Testing Principles
+
+1. **User-Centric Testing**: Tests simulate real user interactions and workflows
+2. **Integration Over Isolation**: Prefer integration tests that test multiple components working together
+3. **Fail Fast**: Tests should fail quickly and provide clear error messages
+4. **Maintainable Tests**: Tests should be easy to read, understand, and maintain
+5. **Realistic Data**: Use realistic test data that mirrors production scenarios
+
+### Test Architecture
+
+```
+src/
+├── components/
+│   └── __tests__/          # Component tests
+├── hooks/
+│   └── api/
+│       └── __tests__/      # API hook tests
+├── lib/
+│   └── __tests__/          # Utility and service tests
+├── test/
+│   ├── __tests__/
+│   │   └── integration/    # Integration tests
+│   ├── mocks/              # MSW handlers and mocks
+│   ├── utils/              # Test utilities
+│   └── setup.ts            # Global test setup
+└── app/
+    └── __tests__/          # Page-level tests
+```
+
+### Testing Levels
+
+#### 1. Unit Tests (20% of test suite)
+**Purpose**: Test individual functions and isolated components
+**Scope**: Pure functions, utilities, individual component methods
+**Tools**: Vitest, basic React Testing Library
+
+```typescript
+// Example: Utility function test
+describe('formatFileSize', () => {
+  it('should format bytes correctly', () => {
+    expect(formatFileSize(1024)).toBe('1 KB');
+    expect(formatFileSize(1048576)).toBe('1 MB');
+  });
+});
+```
+
+#### 2. Component Tests (40% of test suite)
+**Purpose**: Test individual components with user interactions
+**Scope**: Component rendering, user events, state changes, props handling
+**Tools**: React Testing Library, MSW, userEvent
+
+```typescript
+// Example: Component test
+describe('DocumentCard', () => {
+  it('should handle file selection', async () => {
+    const user = userEvent.setup();
+    const onSelect = vi.fn();
+    
+    render(<DocumentCard document={mockDoc} onSelect={onSelect} />);
+    
+    await user.click(screen.getByLabelText(/select/i));
+    expect(onSelect).toHaveBeenCalledWith(mockDoc.id, true);
+  });
+});
+```
+
+#### 3. Integration Tests (30% of test suite)
+**Purpose**: Test complete user workflows and component interactions
+**Scope**: End-to-end user scenarios, API integration, complex state management
+**Tools**: Full React Testing Library setup, MSW, complete mock environment
+
+```typescript
+// Example: Integration test
+describe('Document Upload Workflow', () => {
+  it('should complete upload process', async () => {
+    const user = userEvent.setup();
+    render(<DocumentManagement />);
+    
+    // 1. Open upload dialog
+    await user.click(screen.getByText('Upload'));
+    
+    // 2. Select file
+    const file = new File(['content'], 'test.pdf', { type: 'application/pdf' });
+    const input = screen.getByLabelText(/upload/i);
+    await user.upload(input, file);
+    
+    // 3. Complete upload
+    await user.click(screen.getByText('Upload All'));
+    
+    // 4. Verify success
+    await waitFor(() => {
+      expect(screen.getByText(/upload completed/i)).toBeInTheDocument();
+    });
+  });
+});
+```
+
+#### 4. API Tests (10% of test suite)
+**Purpose**: Test API hooks and data layer
+**Scope**: Data fetching, mutations, cache management, error handling
+**Tools**: React Query testing utilities, MSW
+
+```typescript
+// Example: API hook test
+describe('useDocuments', () => {
+  it('should fetch and cache documents', async () => {
+    server.use(
+      http.get('/api/documents', () => {
+        return HttpResponse.json({ data: mockDocuments });
+      })
+    );
+
+    const { result } = renderHook(() => useDocuments(), {
+      wrapper: createTestWrapper(),
+    });
+
+    await waitFor(() => {
+      expect(result.current.isSuccess).toBe(true);
+      expect(result.current.data).toEqual(mockDocuments);
+    });
+  });
+});
+```
+
+### Test Data Management
+
+#### Mock Data Strategy
+- **Realistic Data**: Use data that closely resembles production data
+- **Consistent Fixtures**: Maintain consistent test data across test files
+- **Data Builders**: Use factory functions for creating test data variants
+
+```typescript
+// Example: Test data factory
+export const createMockDocument = (overrides = {}) => ({
+  id: 'doc-1',
+  name: 'Test Document.pdf',
+  size: 1024000,
+  type: 'application/pdf',
+  status: 'completed',
+  createdAt: '2024-01-01T00:00:00Z',
+  ...overrides,
+});
+
+// Usage in tests
+const processingDoc = createMockDocument({ status: 'processing' });
+const largeDoc = createMockDocument({ size: 50 * 1024 * 1024 });
+```
+
+#### MSW (Mock Service Worker) Configuration
+- **Request Interception**: Intercept and mock all API calls
+- **Realistic Responses**: Return data that matches API contracts
+- **Error Simulation**: Test error scenarios with proper HTTP status codes
+- **Request Validation**: Verify request payloads and parameters
+
+```typescript
+// Example: MSW handler
+export const handlers = [
+  http.get('/api/documents', ({ request }) => {
+    const url = new URL(request.url);
+    const query = url.searchParams.get('query');
+    
+    let documents = mockDocuments;
+    if (query) {
+      documents = documents.filter(doc => 
+        doc.name.toLowerCase().includes(query.toLowerCase())
+      );
+    }
+    
+    return HttpResponse.json({
+      data: documents,
+      pagination: { page: 1, total: documents.length }
+    });
+  }),
+];
+```
+
+### Component Testing Patterns
+
+#### User Event Testing
+```typescript
+// ✅ Good: Test user interactions
+test('should filter documents when searching', async () => {
+  const user = userEvent.setup();
+  render(<DocumentList />);
+  
+  const searchInput = screen.getByPlaceholderText('Search documents...');
+  await user.type(searchInput, 'important');
+  
+  await waitFor(() => {
+    expect(screen.getByText('Important Document')).toBeInTheDocument();
+    expect(screen.queryByText('Other Document')).not.toBeInTheDocument();
+  });
+});
+
+// ❌ Avoid: Testing implementation details
+test('should call setSearchQuery when input changes', () => {
+  const setSearchQuery = vi.fn();
+  render(<SearchInput setSearchQuery={setSearchQuery} />);
+  
+  fireEvent.change(screen.getByRole('textbox'), { target: { value: 'test' } });
+  expect(setSearchQuery).toHaveBeenCalledWith('test');
+});
+```
+
+#### Form Testing
+```typescript
+// ✅ Good: Test complete form workflow
+test('should create collection with validation', async () => {
+  const user = userEvent.setup();
+  render(<CreateCollectionForm />);
+  
+  // Submit without required fields
+  await user.click(screen.getByRole('button', { name: /create/i }));
+  expect(screen.getByText('Name is required')).toBeInTheDocument();
+  
+  // Fill form and submit
+  await user.type(screen.getByLabelText(/name/i), 'New Collection');
+  await user.type(screen.getByLabelText(/description/i), 'Description');
+  await user.click(screen.getByRole('button', { name: /create/i }));
+  
+  await waitFor(() => {
+    expect(screen.getByText('Collection created successfully')).toBeInTheDocument();
+  });
+});
+```
+
+#### Accessibility Testing
+```typescript
+// Test keyboard navigation and screen reader compatibility
+test('should be accessible via keyboard', async () => {
+  const user = userEvent.setup();
+  render(<DocumentCard document={mockDocument} />);
+  
+  // Tab to interactive elements
+  await user.tab();
+  expect(screen.getByRole('checkbox')).toHaveFocus();
+  
+  // Use keyboard to interact
+  await user.keyboard('{Space}');
+  expect(screen.getByRole('checkbox')).toBeChecked();
+  
+  // Verify ARIA labels
+  expect(screen.getByLabelText(/select document/i)).toBeInTheDocument();
+});
+```
+
+### Error Testing Patterns
+
+#### Network Error Handling
+```typescript
+test('should handle network failures gracefully', async () => {
+  server.use(
+    http.get('/api/documents', () => {
+      return HttpResponse.error();
+    })
+  );
+  
+  render(<DocumentList />);
+  
+  await waitFor(() => {
+    expect(screen.getByText(/error loading documents/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /try again/i })).toBeInTheDocument();
+  });
+});
+```
+
+#### Validation Error Testing
+```typescript
+test('should display validation errors', async () => {
+  const user = userEvent.setup();
+  render(<UploadForm />);
+  
+  // Upload invalid file
+  const invalidFile = new File(['content'], 'script.js', { 
+    type: 'application/javascript' 
+  });
+  
+  const input = screen.getByLabelText(/upload/i);
+  await user.upload(input, invalidFile);
+  
+  expect(screen.getByText(/file type not supported/i)).toBeInTheDocument();
+});
+```
+
+### Performance Testing
+
+#### Loading States
+```typescript
+test('should show loading states during data fetch', async () => {
+  // Delay the MSW response
+  server.use(
+    http.get('/api/documents', async () => {
+      await new Promise(resolve => setTimeout(resolve, 100));
+      return HttpResponse.json({ data: mockDocuments });
+    })
+  );
+  
+  render(<DocumentList />);
+  
+  expect(screen.getByText(/loading/i)).toBeInTheDocument();
+  
+  await waitFor(() => {
+    expect(screen.queryByText(/loading/i)).not.toBeInTheDocument();
+  });
+});
+```
+
+#### Race Condition Testing
+```typescript
+test('should handle rapid user interactions', async () => {
+  const user = userEvent.setup();
+  render(<DocumentList />);
+  
+  // Rapid selection/deselection
+  const checkbox = screen.getByLabelText(/select document/i);
+  
+  await user.click(checkbox);
+  await user.click(checkbox);
+  await user.click(checkbox);
+  
+  // Should end in consistent state
+  expect(checkbox).toBeChecked();
+});
+```
+
+### Test Organization and Maintenance
+
+#### File Naming Conventions
+- Test files: `ComponentName.test.tsx`
+- Test utilities: `test-utils.ts`
+- Mock data: `mock-data.ts`
+- MSW handlers: `handlers.ts`
+
+#### Test Structure
+```typescript
+describe('ComponentName', () => {
+  // Group related tests
+  describe('Rendering', () => {
+    it('should render with default props', () => {});
+    it('should render with custom props', () => {});
+  });
+  
+  describe('User Interactions', () => {
+    it('should handle click events', () => {});
+    it('should handle keyboard events', () => {});
+  });
+  
+  describe('Error States', () => {
+    it('should handle loading errors', () => {});
+    it('should handle validation errors', () => {});
+  });
+});
+```
+
+#### Setup and Teardown
+```typescript
+describe('DocumentManagement', () => {
+  beforeEach(() => {
+    // Reset mocks and server state
+    vi.clearAllMocks();
+    server.resetHandlers();
+  });
+  
+  afterEach(() => {
+    // Cleanup DOM and timers
+    cleanup();
+    vi.clearAllTimers();
+  });
+});
+```
+
+### Debugging Tests
+
+#### Common Debugging Techniques
+1. **Screen Debug**: Use `screen.debug()` to see current DOM
+2. **Query Debugging**: Use `screen.logTestingPlaygroundURL()` for query suggestions
+3. **User Event Debugging**: Add delays to see interactions
+4. **MSW Debugging**: Enable request logging
+
+```typescript
+// Debug failing test
+test('debug example', async () => {
+  render(<Component />);
+  
+  // See current DOM state
+  screen.debug();
+  
+  // See query suggestions
+  screen.logTestingPlaygroundURL();
+  
+  // Add delay to see user interactions
+  const user = userEvent.setup({ delay: 100 });
+});
+```
+
+#### Test Isolation Issues
+- **State Leakage**: Ensure tests don't share state
+- **Timer Issues**: Clear timers and async operations
+- **MSW Handler Conflicts**: Reset handlers between tests
+
+### Continuous Integration
+
+#### Pre-commit Hooks
+```bash
+# Run tests before commit
+pnpm test:run
+
+# Check coverage thresholds
+pnpm test:coverage
+
+# Lint test files
+pnpm lint --ext .test.ts,.test.tsx
+```
+
+#### CI Pipeline
+```yaml
+# Example GitHub Actions
+- name: Run Tests
+  run: pnpm test:run
+  
+- name: Check Coverage
+  run: pnpm test:coverage
+  
+- name: Upload Coverage
+  uses: codecov/codecov-action@v3
+```
+
+### Coverage Goals and Metrics
+
+#### Coverage Thresholds
+- **Statements**: 80%
+- **Branches**: 80%
+- **Functions**: 80%
+- **Lines**: 80%
+
+#### Quality Metrics
+- **Test Speed**: < 10 seconds for full suite
+- **Test Reliability**: < 1% flaky test rate
+- **Maintenance**: Tests updated with feature changes
+
+#### Coverage Reports
+- **HTML Reports**: Detailed coverage visualization
+- **Console Reports**: Quick overview during development
+- **CI Reports**: Automated coverage tracking
+
+This comprehensive testing strategy ensures robust, maintainable, and effective testing for the entire application, providing confidence in deployments and feature development.

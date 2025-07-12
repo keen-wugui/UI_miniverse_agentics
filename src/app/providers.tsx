@@ -140,22 +140,25 @@ const createQueryClient = () => {
 export function QueryProviders({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(() => createQueryClient());
 
-  // Initialize logger on mount
+  // Initialize logger on mount (client-side logging only)
   useEffect(() => {
     const initializeLogger = async () => {
       try {
-        // Wait for logger initialization (file logging setup)
+        // Wait for logger initialization
         await logger.waitForInitialization();
         
-        // Log application startup
-        logger.info("Application started", {
+        // Log application startup (browser-side)
+        logger.info("Client application started", {
           environment: process.env.NODE_ENV,
           timestamp: new Date().toISOString(),
+          userAgent: navigator.userAgent,
         });
 
         if (process.env.NODE_ENV === "development") {
-          const stats = await logger.getLogStats();
-          logger.debug("Logger initialized", { stats });
+          logger.debug("Client logger initialized", { 
+            fileLogging: false,
+            consoleLogging: true 
+          });
         }
       } catch (error) {
         console.error("Logger initialization failed:", error);
