@@ -10,7 +10,7 @@ import type {
 } from "@/types/api";
 
 // Health status hook
-export const useHealthStatus = () => {
+export const useHealthStatus = (options?: { enabled?: boolean }) => {
   const cacheConfig = cacheStrategies.health;
 
   return useQuery<HealthResponse>({
@@ -25,6 +25,7 @@ export const useHealthStatus = () => {
         throw handleApiError(error);
       }
     },
+    enabled: options?.enabled ?? true,
     staleTime: cacheConfig.staleTime,
     gcTime: cacheConfig.gcTime,
     refetchOnWindowFocus: cacheConfig.refetchOnWindowFocus,
@@ -60,7 +61,7 @@ export const useDatabaseHealth = () => {
 };
 
 // Database metrics hook
-export const useDatabaseMetrics = () => {
+export const useDatabaseMetrics = (options?: { refetchInterval?: number }) => {
   const cacheConfig = cacheStrategies.health;
 
   return useQuery<DatabaseMetricsResponse>({
@@ -75,6 +76,7 @@ export const useDatabaseMetrics = () => {
         throw handleApiError(error);
       }
     },
+    refetchInterval: options?.refetchInterval,
     staleTime: cacheConfig.staleTime,
     gcTime: cacheConfig.gcTime,
     refetchOnWindowFocus: cacheConfig.refetchOnWindowFocus,
@@ -125,3 +127,6 @@ export const useCompleteHealthCheck = () => {
     },
   };
 };
+
+// Health metrics hook (alias for useDatabaseMetrics for backward compatibility)
+export const useHealthMetrics = useDatabaseMetrics;

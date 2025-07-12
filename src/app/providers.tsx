@@ -2,7 +2,7 @@
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, ReactNode } from "react";
 import {
   cacheStrategies,
   warmCache,
@@ -150,16 +150,25 @@ const createQueryClient = () => {
   });
 };
 
-export function QueryProviders({ children }: { children: React.ReactNode }) {
-  const [queryClient] = useState(() => createQueryClient());
+// Simple client-side initialization component
+function ClientInitializer({ queryClient }: { queryClient: QueryClient }) {
+  const [isClient, setIsClient] = useState(false);
+
+  // Track client-side mounting
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   // Initialize MSW on mount (client-side only)
   useEffect(() => {
+    if (!isClient) return;
     enableMocking().catch(console.error);
-  }, []);
+  }, [isClient]);
 
   // Initialize logger on mount (client-side logging only)
   useEffect(() => {
+    if (!isClient) return;
+    
     const initializeLogger = async () => {
       try {
         // Dynamically import logger to avoid SSR issues
@@ -187,10 +196,12 @@ export function QueryProviders({ children }: { children: React.ReactNode }) {
     };
 
     initializeLogger();
-  }, []);
+  }, [isClient]);
 
   // Cache warming on mount
   useEffect(() => {
+    if (!isClient) return;
+    
     const initializeCache = async () => {
       try {
         // Warm the cache with critical data
@@ -224,10 +235,12 @@ export function QueryProviders({ children }: { children: React.ReactNode }) {
     };
 
     initializeCache();
-  }, [queryClient]);
+  }, [isClient, queryClient]);
 
   // Setup background sync for critical data
   useEffect(() => {
+    if (!isClient) return;
+    
     // Setup background refresh every 5 minutes
     const cleanup = backgroundSync.setupBackgroundRefresh(
       queryClient,
@@ -235,35 +248,44 @@ export function QueryProviders({ children }: { children: React.ReactNode }) {
     );
 
     return cleanup;
-  }, [queryClient]);
+  }, [isClient, queryClient]);
 
   // Setup cache debugging in development
   useEffect(() => {
-    if (process.env.NODE_ENV === "development") {
-      // Log cache status every 2 minutes in development
-      const interval = setInterval(
-        () => {
-          cacheDebug.logCacheStatus(queryClient);
-        },
-        2 * 60 * 1000
-      );
+    if (!isClient || process.env.NODE_ENV !== "development") return;
+    
+    // Log cache status every 2 minutes in development
+    const interval = setInterval(
+      () => {
+        cacheDebug.logCacheStatus(queryClient);
+      },
+      2 * 60 * 1000
+    );
 
-      return () => clearInterval(interval);
-    }
-  }, [queryClient]);
+    return () => clearInterval(interval);
+  }, [isClient, queryClient]);
 
   // Cleanup error reporter on unmount
   useEffect(() => {
+    if (!isClient) return;
+    
     return () => {
       errorReporter.flush().catch(console.error);
     };
-  }, []);
+  }, [isClient]);
+
+  return null;
+}
+
+export function QueryProviders({ children }: { children: ReactNode }) {
+  const [queryClient] = useState(() => createQueryClient());
 
   return (
     <QueryClientProvider client={queryClient}>
+      <ClientInitializer queryClient={queryClient} />
       {children}
       {/* React Query Devtools - only in development */}
-      {process.env.NODE_ENV === "development" && (
+      {typeof window !== "undefined" && process.env.NODE_ENV === "development" && (
         <ReactQueryDevtools initialIsOpen={false} />
       )}
     </QueryClientProvider>

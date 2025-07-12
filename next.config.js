@@ -10,6 +10,8 @@ const nextConfig = {
       allowedOrigins: ["localhost:3000", "localhost:3001", "your-production-domain.com"],
     },
   },
+  // Temporarily disable static exports to resolve SSR build issues
+  output: 'standalone',
   // Move turbo config to turbopack
   turbopack: {
     rules: {

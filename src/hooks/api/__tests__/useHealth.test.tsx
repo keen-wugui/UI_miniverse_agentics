@@ -8,6 +8,7 @@ import {
   useHealthStatus,
   useDatabaseMetrics,
   useDatabaseHealth,
+  useHealthMetrics,
 } from "../useHealth";
 
 // Create wrapper component for tests

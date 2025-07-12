@@ -26,6 +26,11 @@ export class LogFileManager {
       return null;
     }
 
+    // Skip file logging during build or in serverless environments
+    if (process.env.NODE_ENV === 'production' && !process.env.ENABLE_FILE_LOGGING) {
+      return null;
+    }
+
     try {
       // Ensure log directory exists
       await this.ensureLogDirectory();

@@ -9,6 +9,9 @@ export interface PaginationParams {
   page?: number;
   limit?: number;
   offset?: number;
+  sortBy?: string;
+  sortOrder?: "asc" | "desc";
+  enabled?: boolean;
 }
 
 export interface PaginatedResponse<T> {
@@ -101,6 +104,9 @@ export interface DocumentUploadResponse {
 
 export interface DocumentSearchRequest extends SearchParams {
   contentQuery?: string;
+  searchFields?: string[];
+  searchMode?: "semantic" | "keyword" | "hybrid" | "fuzzy" | "exact";
+  caseSensitive?: boolean;
   tags?: string[];
   collections?: string[];
   status?: Document["status"][];
@@ -172,7 +178,10 @@ export interface CollectionSearchRequest extends SearchParams {
 }
 
 export interface CollectionDocumentsResponse
-  extends PaginatedResponse<Document> {}
+  extends PaginatedResponse<Document> {
+  collection: Collection;
+  documents: Document[];
+}
 
 export interface AddDocumentToCollectionRequest {
   collectionId: string;

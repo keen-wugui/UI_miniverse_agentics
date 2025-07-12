@@ -6,6 +6,9 @@ import { Button } from '@/components/ui/button'
 import { useNavigation } from '@/contexts/navigation-context'
 import { Workflow, Play, Plus, Pause } from 'lucide-react'
 
+// Disable static generation for this page
+export const dynamic = 'force-dynamic'
+
 export default function WorkflowsPage() {
   const { setBreadcrumbs } = useNavigation()
 

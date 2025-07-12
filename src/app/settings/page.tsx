@@ -6,6 +6,9 @@ import { Button } from '@/components/ui/button'
 import { useNavigation } from '@/contexts/navigation-context'
 import { Settings, User, Bell, Palette, Key, Shield } from 'lucide-react'
 
+// Disable static generation for this page
+export const dynamic = 'force-dynamic'
+
 export default function SettingsPage() {
   const { setBreadcrumbs } = useNavigation()
 

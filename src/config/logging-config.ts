@@ -108,13 +108,13 @@ export const loggingConfig: EnvironmentLoggingConfig = {
   production: {
     level: "warn",
     enableConsole: false,
-    enableFile: true,
+    enableFile: !!process.env.ENABLE_FILE_LOGGING,
     enablePretty: false,
     redactPaths: REDACT_PATHS,
     service: "ui-miniverse-agentics",
     version: process.env.npm_package_version || "0.1.0",
     file: {
-      logDir: "/var/log/ui-miniverse-agentics",
+      logDir: process.env.LOG_DIR || "./logs",
       filename: "app-%DATE%.log",
       maxSize: "100M",
       maxFiles: 60,

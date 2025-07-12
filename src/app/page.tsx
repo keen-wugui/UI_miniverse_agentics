@@ -11,6 +11,9 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useNavigation } from "@/contexts/navigation-context";
+
+// Disable static generation for this page
+export const dynamic = 'force-dynamic';
 import {
   Activity,
   FileText,

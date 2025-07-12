@@ -245,7 +245,7 @@ export class EnhancedLogger {
     } else {
       const logData = { ...data };
       delete logData.context;
-      this[level](message, {
+      this.info(message, {
         ...logData,
         api: true,
       });
