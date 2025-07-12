@@ -45,15 +45,25 @@ export default function Dashboard() {
   const { setBreadcrumbs } = useNavigation();
   const router = useRouter();
   const [isUploadSheetOpen, setIsUploadSheetOpen] = useState(false);
-  const { data: healthData, isLoading: isHealthLoading } = useHealthStatus();
+  const [isDemoMode, setIsDemoMode] = useState(false);
+  
+  const { data: healthData, isLoading: isHealthLoading, error: healthError } = useHealthStatus();
   const {
     data: documentsData,
     isLoading: isDocumentsLoading,
+    error: documentsError,
     refetch: refetchDocuments,
   } = useDocuments();
-  const { data: collectionsData, isLoading: isCollectionsLoading } =
+  const { data: collectionsData, isLoading: isCollectionsLoading, error: collectionsError } =
     useCollections();
-  const { data: workflowsData, isLoading: isWorkflowsLoading } = useWorkflows();
+  const { data: workflowsData, isLoading: isWorkflowsLoading, error: workflowsError } = useWorkflows();
+
+  // Set demo mode if any API call fails
+  useEffect(() => {
+    if (healthError || documentsError || collectionsError || workflowsError) {
+      setIsDemoMode(true);
+    }
+  }, [healthError, documentsError, collectionsError, workflowsError]);
 
   useEffect(() => {
     setBreadcrumbs([{ label: "Dashboard" }]);
@@ -67,6 +77,14 @@ export default function Dashboard() {
   const renderHealthStatus = () => {
     if (isHealthLoading) {
       return <Loader2 className="h-4 w-4 animate-spin" />;
+    }
+    if (healthError) {
+      return (
+        <div className="flex items-center space-x-2">
+          <AlertTriangle className="h-4 w-4 text-orange-600" />
+          <span className="text-2xl font-bold text-orange-600">Demo Mode</span>
+        </div>
+      );
     }
     if (healthData?.status === "healthy") {
       return (
@@ -97,6 +115,24 @@ export default function Dashboard() {
         </p>
       </div>
 
+      {/* Demo Mode Banner */}
+      {isDemoMode && (
+        <Card className="border-orange-200 bg-orange-50">
+          <CardContent className="pt-6">
+            <div className="flex items-center space-x-2">
+              <AlertTriangle className="h-5 w-5 text-orange-600" />
+              <div>
+                <h3 className="font-semibold text-orange-800">Demo Mode Active</h3>
+                <p className="text-sm text-orange-700">
+                  API backend is not connected. Showing demo data for interface preview.
+                  Start your backend server at localhost:8000 to see real data.
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* System Status Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
@@ -122,11 +158,11 @@ export default function Dashboard() {
               <Loader2 className="h-6 w-6 animate-spin" />
             ) : (
               <div className="text-2xl font-bold">
-                {documentsData?.pagination.total ?? 0}
+                {documentsError ? "24" : (documentsData?.pagination.total ?? 0)}
               </div>
             )}
             <p className="text-xs text-muted-foreground">
-              Total documents in the system
+              {documentsError ? "Demo data - connect to API for real data" : "Total documents in the system"}
             </p>
           </CardContent>
         </Card>
@@ -141,11 +177,11 @@ export default function Dashboard() {
               <Loader2 className="h-6 w-6 animate-spin" />
             ) : (
               <div className="text-2xl font-bold">
-                {collectionsData?.pagination.total ?? 0}
+                {collectionsError ? "8" : (collectionsData?.pagination.total ?? 0)}
               </div>
             )}
             <p className="text-xs text-muted-foreground">
-              Total collections created
+              {collectionsError ? "Demo data - connect to API for real data" : "Total collections created"}
             </p>
           </CardContent>
         </Card>
@@ -162,11 +198,11 @@ export default function Dashboard() {
               <Loader2 className="h-6 w-6 animate-spin" />
             ) : (
               <div className="text-2xl font-bold">
-                {workflowsData?.pagination.total ?? 0}
+                {workflowsError ? "12" : (workflowsData?.pagination.total ?? 0)}
               </div>
             )}
             <p className="text-xs text-muted-foreground">
-              Total workflows available
+              {workflowsError ? "Demo data - connect to API for real data" : "Total workflows available"}
             </p>
           </CardContent>
         </Card>

@@ -72,8 +72,13 @@ const createQueryClient = () => {
             return false;
           }
 
-          // Default retry for retryable errors up to 3 attempts
-          return enhancedError.retryable && failureCount < 3;
+          // Don't retry network errors when backend is completely unavailable
+          if (enhancedError.category === "network" && failureCount >= 1) {
+            return false;
+          }
+
+          // Conservative retry for other retryable errors up to 2 attempts
+          return enhancedError.retryable && failureCount < 2;
         },
         retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
 
