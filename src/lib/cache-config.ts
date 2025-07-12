@@ -13,7 +13,7 @@ export interface CacheConfig {
   refetchOnWindowFocus: boolean;
   refetchOnMount: boolean;
   refetchOnReconnect: boolean;
-  retry: number | boolean | ((failureCount: number, error: Error) => boolean);
+  retry: number | boolean | ((failureCount: number, error: unknown) => boolean);
   retryDelay: number | ((retryAttempt: number) => number);
 }
 

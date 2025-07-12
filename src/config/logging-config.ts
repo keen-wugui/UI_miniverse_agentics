@@ -128,10 +128,11 @@ export const loggingConfig: EnvironmentLoggingConfig = {
 // Get current environment
 export function getCurrentEnvironment(): keyof EnvironmentLoggingConfig {
   const env = process.env.NODE_ENV;
+  const deployEnv = process.env.DEPLOY_ENV;
   
   if (env === "production") return "production";
   if (env === "test") return "test";
-  if (env === "staging") return "staging";
+  if (deployEnv === "staging") return "staging";
   return "development";
 }
 

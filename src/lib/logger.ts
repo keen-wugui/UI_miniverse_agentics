@@ -69,7 +69,7 @@ export interface ApiLogData extends LogData {
 export class EnhancedLogger {
   private logger!: Logger;
   private config = getCurrentLoggingConfig();
-  private fileManager: InstanceType<typeof LogFileManager> | null = null;
+  private fileManager: any = null;
   private isInitialized = false;
 
   constructor() {
@@ -247,7 +247,7 @@ export class EnhancedLogger {
       delete logData.context;
       this[level](message, {
         ...logData,
-        context: LOG_CONTEXTS.API,
+        api: true,
       });
     }
   }

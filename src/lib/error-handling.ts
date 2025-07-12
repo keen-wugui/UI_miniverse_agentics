@@ -395,7 +395,7 @@ export class ErrorReporter {
 
       this.queue = [];
     } catch (reportingError) {
-      logger.error("Failed to report errors", { error: reportingError });
+      logger.error("Failed to report errors", { error: reportingError as LogData['error'] });
     } finally {
       this.reporting = false;
     }
@@ -576,8 +576,7 @@ export class ErrorLogger {
             code: error.code,
             severity: error.severity,
             category: error.category,
-          },
-          context: { errorCategory: error.category }
+          }
         });
         break;
       case ERROR_SEVERITY.HIGH:
@@ -590,8 +589,7 @@ export class ErrorLogger {
             code: error.code,
             severity: error.severity,
             category: error.category,
-          },
-          context: { errorCategory: error.category }
+          }
         });
         break;
       case ERROR_SEVERITY.MEDIUM:
@@ -604,8 +602,7 @@ export class ErrorLogger {
             code: error.code,
             severity: error.severity,
             category: error.category,
-          },
-          context: { errorCategory: error.category }
+          }
         });
         break;
       case ERROR_SEVERITY.LOW:
@@ -618,8 +615,7 @@ export class ErrorLogger {
             code: error.code,
             severity: error.severity,
             category: error.category,
-          },
-          context: { errorCategory: error.category }
+          }
         });
         break;
     }
