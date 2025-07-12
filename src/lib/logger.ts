@@ -5,6 +5,7 @@ import {
   LOG_CONTEXTS,
   PERFORMANCE_THRESHOLDS,
 } from "@/config/logging-config";
+import { LogFileManager } from "@/lib/log-file-manager";
 
 // Enhanced log data interface
 export interface LogData {
@@ -58,14 +59,48 @@ export interface ApiLogData extends LogData {
 
 // Logger class with enhanced functionality
 export class EnhancedLogger {
-  private logger: Logger;
+  private logger!: Logger;
   private config = getCurrentLoggingConfig();
+  private fileManager: LogFileManager | null = null;
+  private isInitialized = false;
 
   constructor() {
+    // Create basic logger first
     this.logger = this.createLogger();
+    this.initializeAsync();
   }
 
-  private createLogger(): Logger {
+  // Async initialization for file logging
+  private async initializeAsync(): Promise<void> {
+    try {
+      // Initialize file manager if file logging is enabled
+      if (this.config.enableFile && this.config.file && typeof window === 'undefined') {
+        this.fileManager = new LogFileManager({
+          config: this.config.file,
+          enableRotation: true,
+        });
+        
+        const fileStream = await this.fileManager.initialize();
+        this.logger = this.createLogger(fileStream);
+        
+        // Setup cleanup interval (run cleanup daily)
+        setInterval(() => {
+          this.fileManager?.cleanup().catch(console.error);
+        }, 24 * 60 * 60 * 1000); // 24 hours
+      } else {
+        this.logger = this.createLogger();
+      }
+      
+      this.isInitialized = true;
+    } catch (error) {
+      console.error('Failed to initialize logger:', error);
+      // Fallback to console-only logging
+      this.logger = this.createLogger();
+      this.isInitialized = true;
+    }
+  }
+
+  private createLogger(fileStream?: NodeJS.WritableStream | null): Logger {
     const pinoConfig: pino.LoggerOptions = {
       level: this.config.level,
       formatters: {
@@ -95,22 +130,51 @@ export class EnhancedLogger {
       };
     }
 
-    let logger = pino(pinoConfig);
+    // Create streams array for multiple outputs
+    const streams: any[] = [];
 
-    // Add pretty printing for development
-    if (this.config.enablePretty && typeof window === "undefined") {
-      const pinoPretty = require("pino-pretty");
-      logger = pino(
-        pinoConfig,
-        pinoPretty({
-          colorize: true,
-          translateTime: "SYS:standard",
-          ignore: "hostname",
-        })
-      );
+    // Console stream (if enabled)
+    if (this.config.enableConsole) {
+      if (this.config.enablePretty && typeof window === "undefined") {
+        const pinoPretty = require("pino-pretty");
+        streams.push({
+          level: this.config.level,
+          stream: pinoPretty({
+            colorize: true,
+            translateTime: "SYS:standard",
+            ignore: "hostname",
+          }),
+        });
+      } else {
+        streams.push({
+          level: this.config.level,
+          stream: process.stdout,
+        });
+      }
     }
 
-    return logger;
+    // File stream (if enabled and available)
+    if (fileStream && this.config.enableFile) {
+      streams.push({
+        level: this.config.level,
+        stream: fileStream,
+      });
+    }
+
+    // If no streams, default to console
+    if (streams.length === 0) {
+      streams.push({
+        level: this.config.level,
+        stream: process.stdout,
+      });
+    }
+
+    // Create logger with multiple streams if needed
+    if (streams.length === 1) {
+      return pino(pinoConfig, streams[0].stream);
+    } else {
+      return pino(pinoConfig, pino.multistream(streams));
+    }
   }
 
   // Generate correlation ID for request tracking
@@ -152,8 +216,10 @@ export class EnhancedLogger {
 
   // Specialized logging methods
   logApiRequest(data: ApiLogData): void {
+    const logData = { ...data };
+    delete logData.context;
     this.info(`API Request: ${data.method} ${data.url}`, {
-      ...data,
+      ...logData,
       context: LOG_CONTEXTS.API as LogContext,
     });
   }
@@ -169,8 +235,10 @@ export class EnhancedLogger {
         performance: { slow: true, threshold: PERFORMANCE_THRESHOLDS.API_SLOW_REQUEST },
       });
     } else {
+      const logData = { ...data };
+      delete logData.context;
       this[level](message, {
-        ...data,
+        ...logData,
         context: LOG_CONTEXTS.API as LogContext,
       });
     }
@@ -286,10 +354,45 @@ export class EnhancedLogger {
   }
 
   // Flush logs (useful for testing and shutdown)
-  flush(): void {
+  async flush(): Promise<void> {
     if (typeof this.logger.flush === "function") {
       this.logger.flush();
     }
+    
+    // Flush file manager if available
+    if (this.fileManager) {
+      await this.fileManager.close();
+    }
+  }
+
+  // Get log statistics
+  async getLogStats(): Promise<any> {
+    if (this.fileManager) {
+      return await this.fileManager.getLogStats();
+    }
+    return {
+      fileLogging: false,
+      consoleLogging: this.config.enableConsole,
+    };
+  }
+
+  // Manually rotate logs
+  async rotateLogs(): Promise<void> {
+    if (this.fileManager) {
+      await this.fileManager.rotateLogs();
+    }
+  }
+
+  // Wait for logger to be initialized
+  async waitForInitialization(): Promise<void> {
+    while (!this.isInitialized) {
+      await new Promise(resolve => setTimeout(resolve, 10));
+    }
+  }
+
+  // Check if logger is ready
+  isReady(): boolean {
+    return this.isInitialized;
   }
 }
 

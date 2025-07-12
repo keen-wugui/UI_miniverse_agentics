@@ -183,3 +183,264 @@ The application communicates with a REST API backend running on `http://localhos
 - **Mock Service Worker (MSW)**: API responses are mocked during development using MSW
 - **Bypass Configuration**: MSW is configured to bypass all localhost:3000 requests (Next.js static assets) and only intercept localhost:8000 API requests
 - **Error Simulation**: Test endpoints available at `/test/error/{statusCode}` for testing error handling
+
+## Testing Strategy
+
+### Overview
+This application uses a comprehensive testing strategy designed to ensure reliability, maintainability, and confidence in deployments. The testing stack includes Vitest, React Testing Library, and Mock Service Worker (MSW) for robust test coverage across all application layers.
+
+### Testing Stack
+- **Test Runner**: Vitest (fast, ESM-native alternative to Jest)
+- **Component Testing**: React Testing Library with React 19 support
+- **DOM Environment**: happy-dom (lightweight, fast DOM implementation)
+- **API Mocking**: Mock Service Worker (MSW) v2 for intercepting network requests
+- **Coverage**: V8 provider with comprehensive reporting
+- **Utilities**: Custom test utilities for React Query integration
+
+### Testing Categories
+
+#### 1. Unit Tests
+**Target**: Individual functions, utilities, and isolated components
+**Location**: `src/**/__tests__/*.test.{ts,tsx}` or `src/**/*.test.{ts,tsx}`
+**Patterns**:
+- Pure functions and utilities
+- Custom hooks (using `renderHook`)
+- Component logic without integration
+- Form validation schemas
+- API client functions
+
+**Example Structure**:
+```typescript
+// src/lib/__tests__/api-client.test.ts
+describe('ApiClient', () => {
+  describe('GET requests', () => {
+    it('should handle successful responses', async () => {
+      // Test implementation
+    });
+  });
+});
+```
+
+#### 2. Integration Tests
+**Target**: Component interactions with APIs, state management, and user workflows
+**Location**: `src/**/__tests__/*.test.{ts,tsx}`
+**Patterns**:
+- Components with React Query hooks
+- Form submissions with validation
+- API interactions through MSW
+- Multi-step user workflows
+- Error handling scenarios
+
+**Example Structure**:
+```typescript
+// src/hooks/api/__tests__/useHealth.test.tsx
+describe('useHealth hooks', () => {
+  it('should fetch health status successfully', async () => {
+    // Mock API response with MSW
+    // Render hook with QueryClient provider
+    // Assert loading states and data
+  });
+});
+```
+
+#### 3. Component Tests
+**Target**: React components with user interactions and rendering
+**Location**: `src/components/**/__tests__/*.test.{ts,tsx}`
+**Patterns**:
+- User event simulation
+- Accessibility testing
+- Conditional rendering
+- Props validation
+- State changes
+
+**Recommended Test Structure**:
+```typescript
+// src/components/documents/__tests__/DocumentCard.test.tsx
+describe('DocumentCard', () => {
+  it('should render document information correctly', () => {
+    // Render with required props
+    // Assert visible elements
+  });
+  
+  it('should handle click events', async () => {
+    // Render component
+    // Simulate user interaction
+    // Assert expected behavior
+  });
+});
+```
+
+#### 4. Page/Route Tests
+**Target**: Full page components and routing behavior
+**Location**: `src/app/**/__tests__/*.test.{ts,tsx}`
+**Patterns**:
+- Server component rendering
+- Data loading states
+- Error boundaries
+- Navigation behavior
+
+### Test Configuration
+
+#### Coverage Requirements
+- **Minimum Coverage**: 80% across all metrics (lines, functions, branches, statements)
+- **Excluded Areas**:
+  - `node_modules/`
+  - `src/test/` (test utilities)
+  - `**/*.d.ts` (type definitions)
+  - `**/*.config.*` (configuration files)
+  - `src/app/layout.tsx` and `src/app/page.tsx` (Next.js app structure)
+  - `src/components/ui/` (shadcn/ui components - pre-tested)
+
+#### Test Environment Setup
+```typescript
+// src/test/setup.ts includes:
+- Jest-DOM matchers for enhanced assertions
+- MSW server configuration for API mocking
+- Global mocks for DOM APIs (matchMedia, ResizeObserver)
+- React Testing Library cleanup
+- Console method mocking for cleaner test output
+```
+
+### Testing Patterns and Best Practices
+
+#### 1. API Testing with MSW
+```typescript
+// Mock API responses for consistent testing
+server.use(
+  http.get(`${baseUrl}/endpoint`, () => {
+    return HttpResponse.json(mockData);
+  })
+);
+```
+
+#### 2. React Query Integration
+```typescript
+// Use custom test utilities for React Query
+const { result } = renderHook(() => useCustomHook(), {
+  wrapper: createTestWrapper(),
+});
+```
+
+#### 3. Component Testing
+```typescript
+// Test user interactions and accessibility
+import { render, screen, userEvent } from '../test/utils/test-utils';
+
+test('should submit form with valid data', async () => {
+  const user = userEvent.setup();
+  render(<Component />);
+  
+  await user.type(screen.getByLabelText(/email/i), 'test@example.com');
+  await user.click(screen.getByRole('button', { name: /submit/i }));
+  
+  expect(screen.getByText(/success/i)).toBeInTheDocument();
+});
+```
+
+#### 4. Error Handling Tests
+```typescript
+// Test error scenarios and recovery
+server.use(
+  http.get('/api/endpoint', () => {
+    return HttpResponse.json(
+      { error: 'Server Error' },
+      { status: 500 }
+    );
+  })
+);
+```
+
+### Writing New Tests
+
+#### When to Write Tests
+1. **Always**: New features, bug fixes, refactored code
+2. **API Hooks**: Every new React Query hook
+3. **Components**: User-facing components with interactions
+4. **Utilities**: Pure functions and business logic
+5. **Forms**: Validation logic and submission flows
+
+#### Test File Organization
+```
+src/
+├── components/
+│   ├── documents/
+│   │   ├── DocumentCard.tsx
+│   │   └── __tests__/
+│   │       └── DocumentCard.test.tsx
+├── hooks/
+│   ├── api/
+│   │   ├── useDocuments.ts
+│   │   └── __tests__/
+│   │       └── useDocuments.test.tsx
+└── lib/
+    ├── utils.ts
+    └── __tests__/
+        └── utils.test.ts
+```
+
+#### Test Naming Conventions
+- **Files**: `ComponentName.test.tsx` or `functionName.test.ts`
+- **Describe blocks**: Use the component/function name
+- **Test cases**: Describe behavior, start with "should"
+
+#### Common Test Scenarios for This Application
+
+1. **Document Management**:
+   - File upload with validation
+   - Document search and filtering
+   - Preview functionality
+   - Status updates
+
+2. **Collection Management**:
+   - Creating collections
+   - Adding/removing documents
+   - Collection metadata editing
+
+3. **Health Monitoring**:
+   - Real-time metrics display
+   - Alert conditions
+   - Performance charts
+
+4. **Workflow Execution**:
+   - Workflow creation and editing
+   - Execution status tracking
+   - Error handling
+
+5. **RAG Queries**:
+   - Query submission
+   - Response formatting
+   - Source citations
+
+### Running Tests
+
+#### Development Workflow
+```bash
+# Run tests in watch mode during development
+pnpm test
+
+# Run tests with UI for debugging
+pnpm test:ui
+
+# Run tests once (CI/CD)
+pnpm test:run
+
+# Generate coverage report
+pnpm test:coverage
+```
+
+#### Test Performance
+- **Target**: Tests should run in under 10 seconds for the full suite
+- **Optimization**: Use `happy-dom` instead of `jsdom` for faster DOM operations
+- **Parallelization**: Vitest runs tests in parallel by default
+
+### Debugging Tests
+1. **Test UI**: Use `pnpm test:ui` for interactive debugging
+2. **Console Logging**: Use `console.log` in tests (mocked by default but can be enabled)
+3. **MSW Debugging**: Enable request logging in MSW handlers
+4. **Coverage Reports**: Check HTML coverage reports for missed test cases
+
+### Integration with CI/CD
+- Tests run automatically on every pull request
+- Coverage reports are generated and checked against thresholds
+- Failed tests block deployments
+- Performance tests ensure acceptable response times

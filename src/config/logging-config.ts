@@ -7,6 +7,17 @@ export interface LoggingConfig {
   redactPaths: string[];
   service: string;
   version: string;
+  file?: FileLoggingConfig;
+}
+
+export interface FileLoggingConfig {
+  logDir: string;
+  filename: string;
+  maxSize: string; // e.g., '10M', '100K'
+  maxFiles: number;
+  datePattern: string; // e.g., 'YYYY-MM-DD'
+  compress: boolean;
+  cleanupOlderThan: string; // e.g., '30d', '7d'
 }
 
 export interface EnvironmentLoggingConfig {
@@ -48,6 +59,15 @@ export const loggingConfig: EnvironmentLoggingConfig = {
     redactPaths: REDACT_PATHS,
     service: "ui-miniverse-agentics",
     version: process.env.npm_package_version || "0.1.0",
+    file: {
+      logDir: "./logs",
+      filename: "app-%DATE%.log",
+      maxSize: "10M",
+      maxFiles: 14,
+      datePattern: "YYYY-MM-DD",
+      compress: true,
+      cleanupOlderThan: "30d",
+    },
   },
   test: {
     level: "warn",
@@ -57,6 +77,15 @@ export const loggingConfig: EnvironmentLoggingConfig = {
     redactPaths: REDACT_PATHS,
     service: "ui-miniverse-agentics",
     version: process.env.npm_package_version || "0.1.0",
+    file: {
+      logDir: "./logs/test",
+      filename: "test-%DATE%.log",
+      maxSize: "5M",
+      maxFiles: 5,
+      datePattern: "YYYY-MM-DD",
+      compress: false,
+      cleanupOlderThan: "7d",
+    },
   },
   staging: {
     level: "info",
@@ -66,6 +95,15 @@ export const loggingConfig: EnvironmentLoggingConfig = {
     redactPaths: REDACT_PATHS,
     service: "ui-miniverse-agentics",
     version: process.env.npm_package_version || "0.1.0",
+    file: {
+      logDir: "/var/log/ui-miniverse-agentics",
+      filename: "app-%DATE%.log",
+      maxSize: "50M",
+      maxFiles: 30,
+      datePattern: "YYYY-MM-DD",
+      compress: true,
+      cleanupOlderThan: "30d",
+    },
   },
   production: {
     level: "warn",
@@ -75,6 +113,15 @@ export const loggingConfig: EnvironmentLoggingConfig = {
     redactPaths: REDACT_PATHS,
     service: "ui-miniverse-agentics",
     version: process.env.npm_package_version || "0.1.0",
+    file: {
+      logDir: "/var/log/ui-miniverse-agentics",
+      filename: "app-%DATE%.log",
+      maxSize: "100M",
+      maxFiles: 60,
+      datePattern: "YYYY-MM-DD",
+      compress: true,
+      cleanupOlderThan: "60d",
+    },
   },
 };
 
